@@ -24,8 +24,6 @@ class ProcessSiaDataContent
 
     private const SIA_TIMESTAMP_EXPECTED_LENGTH = 20;
 
-    private const PAD_SEPARATOR = '|';
-
     private DecryptionService $decryptionService;
 
     public function __construct(DecryptionService $decryptionService)
@@ -56,7 +54,7 @@ class ProcessSiaDataContent
         if ($parsedHeaderDto->wasEncrypted) {
 
             // Content is expected to be "[HEX_ENCRYPTED_DATA]"
-            if (!str_starts_with($contentToProcess, '[')) {
+            if (! str_starts_with($contentToProcess, '[')) {
                 throw new GenericParsingException(
                     message: 'Encrypted content block missing openning bracket "[".',
                     fullRawFrame: $parsedHeaderDto->rawFrame,
@@ -80,7 +78,7 @@ class ProcessSiaDataContent
             }
 
             // Basic hex validation before attempting decryption
-            if (!ctype_xdigit($hexEncryptedData)) {
+            if (! ctype_xdigit($hexEncryptedData)) {
                 throw new GenericParsingException(
                     message: 'Encrypted data content contains non-hexadecimal characters.',
                     fullRawFrame: $parsedHeaderDto->rawFrame,
@@ -114,7 +112,7 @@ class ProcessSiaDataContent
 
         }
 
-        $finalContentToParse = "[" . $finalContentToParse;
+        $finalContentToParse = '['.$finalContentToParse;
 
         // --- Common parsing logic for plaintext (either original or decrypted) ---
         $parsedResult = $this->parsePlainTextSiaDataContent(
@@ -203,7 +201,7 @@ class ProcessSiaDataContent
                         parsedHeaderParts: $headerForExceptionContext
                     );
                 }
-                if (!ctype_upper($identifier)) {
+                if (! ctype_upper($identifier)) {
                     Log::debug('Potential extended data block did not start with an uppercase identifier. Stopping extended data parse.', ['char' => $identifier, 'offset' => $offsetOfThisContentInFullBody + $currentPos + 1, 'account' => $panelAccountNumberForLogging]);
                     break;
                 }
@@ -239,7 +237,7 @@ class ProcessSiaDataContent
                             }
                         } catch (CarbonInvalidFormatException $e) {
                             throw new GenericParsingException( /* ... as before ... */
-                                message: "Plaintext content parsing error: SIA Timestamp '{$rawSiaTimestamp}' parse failed: " . $e->getMessage(),
+                                message: "Plaintext content parsing error: SIA Timestamp '{$rawSiaTimestamp}' parse failed: ".$e->getMessage(),
                                 fullRawFrame: $fullRawFrameForContext,
                                 extractedMessageBody: $fullBodyForContext,
                                 errorContext: ErrorContext::BODY_PARSING,

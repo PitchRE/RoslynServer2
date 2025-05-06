@@ -28,7 +28,7 @@ return [
     'supported_tokens' => [
         SiaToken::ADM_CID->value => [
             'name' => 'Ademco Contact ID',
-            'handler_class' => \Illuminate\Support\Facades\Log::class
+            'handler_class' => \Illuminate\Support\Facades\Log::class,
         ],
         SiaToken::SIA_DCS->value => [
             'name' => 'SIA DCS Text Format',

@@ -53,7 +53,7 @@ class ConfigKeyManagementService implements KeyManagementService
         };
 
         if ($expectedKeyLengthBytes !== null && strlen($binaryKey) !== $expectedKeyLengthBytes) {
-            Log::error('SIA Decryption: Configured key length does not match cipher requirements.', [
+            Log::critical('SIA Decryption: Configured key length does not match cipher requirements.', [
                 'cipher' => $cipher,
                 'expected_length_bytes' => $expectedKeyLengthBytes,
                 'actual_length_bytes' => strlen($binaryKey),

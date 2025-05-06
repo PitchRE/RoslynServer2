@@ -17,11 +17,13 @@ use Throwable;
 
 class HandleMessage
 {
-
     use AsAction;
+
     // Assuming actions are resolved by DI or called statically if they use AsAction
     private ExtractMessageFrame $extractMessageFrame;
+
     private ParseMessageFrame $parseMessageFrame;
+
     private DetermineSiaResponse $determineSiaResponse;
     // private BuildAckResponse $buildAckResponse;
     // private BuildNakResponse $buildNakResponse;
@@ -46,9 +48,9 @@ class HandleMessage
     /**
      * Handles receiving, parsing, determining response for, and building a response to a SIA message.
      *
-     * @param string $rawMessageHex The raw hex string received from the network.
-     * @param string $remoteIp Source IP.
-     * @param int $remotePort Source Port.
+     * @param  string  $rawMessageHex  The raw hex string received from the network.
+     * @param  string  $remoteIp  Source IP.
+     * @param  int  $remotePort  Source Port.
      * @return string|null The binary response string to send back, or null if no response.
      */
     public function handle(string $rawMessageHex, string $remoteIp, int $remotePort): ?string
@@ -88,13 +90,13 @@ class HandleMessage
             $parsingException = $e; // Store exception
         } catch (Throwable $e) {
             // Unexpected error during extraction or parsing orchestration
-            Log::critical("Critical error in HandleMessage before response determination.", [
+            Log::critical('Critical error in HandleMessage before response determination.', [
                 'message_id' => $siaMessage->id,
                 'exception' => $e->getMessage(),
-                'trace' => substr($e->getTraceAsString(), 0, 500)
+                'trace' => substr($e->getTraceAsString(), 0, 500),
             ]);
             $siaMessage->processing_status = ProcessingStatus::BODY_PARSING_FAILED; // Or a generic "ERROR" status
-            $siaMessage->processing_notes = "Unexpected critical error: " . $e->getMessage();
+            $siaMessage->processing_notes = 'Unexpected critical error: '.$e->getMessage();
             $responseType = ResponseType::DUH; // Safest bet for unexpected server-side error
         } finally {
             if ($siaMessage->isDirty()) {
@@ -102,18 +104,16 @@ class HandleMessage
             }
         }
 
-
         // 3. Determine SIA Response (using the updated $siaMessage and any caught $parsingException)
         // If $parsingException is not null, DetermineSiaResponse will use it.
         // If $parsingException is null, $siaMessage->processing_status should be PARSED.
-        if (!$parsingException && $siaMessage->processing_status !== ProcessingStatus::PARSED) {
-            Log::error("Logic error: No parsing exception, but message not in PARSED state for response determination.", ['message_id' => $siaMessage->id, 'status' => $siaMessage->processing_status->value]);
+        if (! $parsingException && $siaMessage->processing_status !== ProcessingStatus::PARSED) {
+            Log::error('Logic error: No parsing exception, but message not in PARSED state for response determination.', ['message_id' => $siaMessage->id, 'status' => $siaMessage->processing_status->value]);
             // Fallback to DUH or NONE if state is inconsistent
             $responseType = $responseType === ResponseType::NONE ? ResponseType::NONE : ResponseType::DUH;
         } else {
             $responseType = $this->determineSiaResponse->handle($siaMessage, $parsingException);
         }
-
 
         // 4. Build Response String
         switch ($responseType) {

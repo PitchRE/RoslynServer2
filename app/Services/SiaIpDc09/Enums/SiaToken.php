@@ -15,7 +15,7 @@ enum SiaToken: string
     case ADM_CID = 'ADM-CID'; // Ademco Contact ID
     case SIA_DCS = 'SIA-DCS'; // SIA DC-04 Digital Communication Standard (Text Format)
 
-    case ADM_CIDX = "ADM-CIDX"; // Ademco Contact ID Extended
+    case ADM_CIDX = 'ADM-CIDX'; // Ademco Contact ID Extended
 
     // --- Supervision / System Messages (Base Tokens) ---
     case NULL = 'NULL';       // Null message (Link Test)
@@ -57,6 +57,6 @@ enum SiaToken: string
     public function getInterpreterHandlerClass(): ?string
     {
         // Config path could be something like 'sia.token_handlers.ADM-CID'
-        return Config::get('sia.token_handlers.' . $this->value);
+        return Config::get('sia.token_handlers.'.$this->value);
     }
 }
