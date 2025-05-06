@@ -2,28 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\SiaIpDc09;
+namespace App\Services\SiaIpDc09\Actions;
 
 use App\Models\SiaDc09Message;
+use App\Services\SiaIpDc09\Data\ParsedHeaderDto;
 // We don't directly return FinalParsedSiaDataDto from this action anymore,
 // but it conceptually represents the data we gather to populate the model.
 // use App\Services\SiaIpDc09\Data\FinalParsedSiaDataDto;
-use App\Services\SiaIpDc09\Data\ParsedContentDto;
-use App\Services\SiaIpDc09\Data\ParsedHeaderDto;
-use App\Services\SiaIpDc09\Data\ValidatedFrameDto;
 use App\Services\SiaIpDc09\Enums\ErrorContext;
 use App\Services\SiaIpDc09\Enums\ProcessingStatus;
-// For specific instance check if needed
-// For specific instance check if needed
 use App\Services\SiaIpDc09\Exceptions\GenericParsingException;
 use App\Services\SiaIpDc09\Exceptions\SiaMessageException;
-// For specific instance check if needed
-// For specific instance check if needed
 use Illuminate\Support\Facades\Log;
+use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
 
 class ParseMessageFrame
 {
+    use AsAction;
+
     private ValidateSiaFrame $validateSiaFrame;
 
     private ParseSiaBodyHeader $parseSiaBodyHeader;
@@ -71,7 +68,7 @@ class ParseMessageFrame
             // Populate model from ValidatedFrameDto
             $siaMessage->raw_body_hex = bin2hex($validatedFrameDto->rawBody);
             $siaMessage->crc_header = $validatedFrameDto->crcHeader;
-            $siaMessage->length_header = '0' . str_pad(strtoupper(dechex($validatedFrameDto->lengthHeaderValue)), 3, '0', STR_PAD_LEFT);
+            $siaMessage->length_header = '0'.str_pad(strtoupper(dechex($validatedFrameDto->lengthHeaderValue)), 3, '0', STR_PAD_LEFT);
 
             $logContext['current_stage'] = 'body_header_parsing';
             $parsedHeaderDto = $this->parseSiaBodyHeader->handle($validatedFrameDto);
@@ -86,7 +83,7 @@ class ParseMessageFrame
             $parsedContentDto = $this->processSiaDataContent->handle($parsedHeaderDto);
             // Populate model from ParsedContentDto
             $siaMessage->message_data = $parsedContentDto->messageData;
-            $siaMessage->extended_data = !empty($parsedContentDto->extendedData) ? $parsedContentDto->extendedData : null;
+            $siaMessage->extended_data = ! empty($parsedContentDto->extendedData) ? $parsedContentDto->extendedData : null;
             $siaMessage->raw_sia_timestamp = $parsedContentDto->rawSiaTimestamp;
             $siaMessage->sia_timestamp = $parsedContentDto->siaTimestamp;
 
@@ -126,7 +123,7 @@ class ParseMessageFrame
             ]);
 
             $siaMessage->processing_status = ProcessingStatus::BODY_PARSING_FAILED; // Or a more generic system_error status
-            $siaMessage->processing_notes = 'Unexpected orchestration error at stage [' . $logContext['current_stage'] . ']: ' . $e->getMessage();
+            $siaMessage->processing_notes = 'Unexpected orchestration error at stage ['.$logContext['current_stage'].']: '.$e->getMessage();
 
             if ($parsedHeaderDto instanceof ParsedHeaderDto) {
                 // If header parsing completed, all its data should be on the model
@@ -134,7 +131,7 @@ class ParseMessageFrame
             }
 
             throw new GenericParsingException(
-                message: 'Unexpected orchestration error: ' . $e->getMessage(),
+                message: 'Unexpected orchestration error: '.$e->getMessage(),
                 fullRawFrame: $binaryFrame,
                 /** @phpstan-ignore nullsafe.neverNull */
                 extractedMessageBody: $validatedFrameDto?->rawBody, // Nullsafe is correct

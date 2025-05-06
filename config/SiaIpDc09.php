@@ -28,7 +28,7 @@ return [
     'supported_tokens' => [
         SiaToken::ADM_CID->value => [
             'name' => 'Ademco Contact ID',
-            'handler_class' => null,
+            'handler_class' => \Illuminate\Support\Facades\Log::class
         ],
         SiaToken::SIA_DCS->value => [
             'name' => 'SIA DCS Text Format',
@@ -82,7 +82,7 @@ return [
         // For security, store this in your .env file and DO NOT commit to version control.
         // Example for .env: SIA_DEFAULT_KEY="your_hex_encoded_16_byte_key_for_aes128"
         // The application should convert this hex key to binary before use if stored as hex.
-        'default_key_hex' => env('SIA_DEFAULT_KEY_HEX', '1234567890123456'), // Store as hex in .env
+        'default_key_hex' => env('SIA_DEFAULT_KEY_HEX', bin2hex('1234567890123456')), // Store as hex in .env
 
         // Future: You might implement a key_provider_class for dynamic key lookups
         // 'key_provider_class' => null, // e.g., App\Services\SiaIpDc09\KeyManagement\DatabaseKeyProvider::class

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contracts\Support;
+namespace App\Support\Crc\Contracts;
 
 interface CrcCalculator
 {

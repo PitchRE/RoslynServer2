@@ -1,7 +1,23 @@
 <?php
 
+use App\Models\SiaDc09Message;
+use App\Services\SiaIpDc09\Actions\HandleMessage;
+use App\Services\SiaIpDc09\Enums\ProcessingStatus;
 use Illuminate\Support\Facades\Route;
+use App\Services\SiaIpDc09\Actions\ParseMessageFrame;
+use App\Services\SiaIpDc09\Actions\ExtractMessageFrame;
+use App\Services\SiaIpDc09\Actions\DetermineSiaResponse;
+use App\Services\SiaIpDc09\Exceptions\SiaMessageException;
 
 Route::get('/', function () {
-    return view('welcome');
+
+    $hex = '0a6339336130303939222a41444d2d43494422303030315235304c3023353535355b34423841303738453937394335333342374133363346414330443744383535454345433041383842434245303736334533333844364634464146353539453938393045454246353043423343363238423135424643323736413735424343413344434635384339333538354330373032463930414344413135383642434636410d';
+
+    HandleMessage::run($hex, '127.0.0.1', '7000');
+
+
+
+
+
+    //  return view('welcome');
 });

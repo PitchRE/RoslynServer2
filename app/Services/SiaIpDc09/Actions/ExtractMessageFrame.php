@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\SiaIpDc09; // Adjust namespace if your actions are deeper
+namespace App\Services\SiaIpDc09\Actions;
 
 use App\Services\SiaIpDc09\Enums\ErrorContext;
 use App\Services\SiaIpDc09\Exceptions\InvalidFrameException;
-use Illuminate\Support\Facades\Log; // Optional: for logging specific scenarios
+use Illuminate\Support\Facades\Log;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 // If using lorisleiva/laravel-actions:
 // use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Log; // Optional: for logging specific scenarios
 class ExtractMessageFrame
 {
     // If using lorisleiva/laravel-actions:
-    // use AsAction;
+    use AsAction;
 
     private const HEX_LF = '0a'; // Line Feed
 
@@ -33,6 +34,7 @@ class ExtractMessageFrame
      */
     public function handle(string $rawMessageHex, string $remoteIp): string
     {
+
         // Ensure the input is lowercase for consistent searching and processing
         $processedHex = strtolower(trim($rawMessageHex)); // Trim whitespace just in case
 

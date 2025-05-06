@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Support\Crc;
+namespace App\Support\Crc\Actions;
 
-use App\Contracts\Support\CrcCalculator; // Import the contract
+use App\Support\Crc\Contracts\CrcCalculator;
 use Lorisleiva\Actions\Concerns\AsAction; // If you use this package
 
 class CalculateCrc16Arc implements CrcCalculator // Implement the contract

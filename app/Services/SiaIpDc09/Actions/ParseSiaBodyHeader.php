@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\SiaIpDc09;
+namespace App\Services\SiaIpDc09\Actions;
 
 use App\Services\SiaIpDc09\Data\ParsedHeaderDto;
 use App\Services\SiaIpDc09\Data\ValidatedFrameDto;
@@ -248,6 +248,7 @@ class ParseSiaBodyHeader
         // $parsedHeaderForExceptionContext['panel_account_number'] = $panelAccountNumber; // Already set above
 
         // --- 6. Remaining Content ---
+
         $remainingBodyContent = substr($currentBody, $offset);
 
         // Log::debug("SIA body header parsed successfully.", $parsedHeaderForExceptionContext + ['remaining_content_preview' => substr($remainingBodyContent, 0, 30)]);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\SiaIpDc09;
+namespace App\Services\SiaIpDc09\Actions;
 
 use App\Services\SiaIpDc09\Contracts\DecryptionService;
 use App\Services\SiaIpDc09\Data\ParsedContentDto;
@@ -12,11 +12,14 @@ use App\Services\SiaIpDc09\Exceptions\DecryptionErrorException;
 use App\Services\SiaIpDc09\Exceptions\GenericParsingException;
 use App\Services\SiaIpDc09\Exceptions\TimestampInvalidException;
 use Carbon\CarbonImmutable;
-use Carbon\Exceptions\InvalidFormatException as CarbonInvalidFormatException; // For decryption failures
+use Carbon\Exceptions\InvalidFormatException as CarbonInvalidFormatException;
 use Illuminate\Support\Facades\Log; // For mandatory timestamp on encrypted
+use Lorisleiva\Actions\Concerns\AsAction; // For decryption failures
 
 class ProcessSiaDataContent
 {
+    use AsAction;
+
     private const SIA_TIMESTAMP_PREFIX = '_';
 
     private const SIA_TIMESTAMP_EXPECTED_LENGTH = 20;
@@ -51,10 +54,11 @@ class ProcessSiaDataContent
         $finalContentToParse = $parsedHeaderDto->remainingBodyContent;
 
         if ($parsedHeaderDto->wasEncrypted) {
+
             // Content is expected to be "[HEX_ENCRYPTED_DATA]"
-            if (! str_starts_with($contentToProcess, '[') || ! str_ends_with($contentToProcess, ']')) {
+            if (!str_starts_with($contentToProcess, '[')) {
                 throw new GenericParsingException(
-                    message: 'Encrypted content block missing surrounding brackets "[...]".',
+                    message: 'Encrypted content block missing openning bracket "[".',
                     fullRawFrame: $parsedHeaderDto->rawFrame,
                     extractedMessageBody: $parsedHeaderDto->rawBody,
                     errorContext: ErrorContext::BODY_PARSING,
@@ -63,7 +67,7 @@ class ProcessSiaDataContent
                 );
             }
 
-            $hexEncryptedData = substr($contentToProcess, 1, -1); // Remove brackets
+            $hexEncryptedData = substr($contentToProcess, 1); // Remove bracket
             if (empty($hexEncryptedData)) {
                 throw new GenericParsingException( // Or DecryptionErrorException if preferred for empty encrypted block
                     message: 'Encrypted data block inner content is empty after removing brackets.',
@@ -76,7 +80,7 @@ class ProcessSiaDataContent
             }
 
             // Basic hex validation before attempting decryption
-            if (! ctype_xdigit($hexEncryptedData)) {
+            if (!ctype_xdigit($hexEncryptedData)) {
                 throw new GenericParsingException(
                     message: 'Encrypted data content contains non-hexadecimal characters.',
                     fullRawFrame: $parsedHeaderDto->rawFrame,
@@ -87,14 +91,14 @@ class ProcessSiaDataContent
                 );
             }
 
-            $decryptedPlaintext = $this->decryptionService->handle(
+            $finalContentToParse = $this->decryptionService->handle(
                 encryptedHexData: $hexEncryptedData,
                 panelAccountNumber: $parsedHeaderDto->panelAccountNumber,
                 receiverNumber: $parsedHeaderDto->receiverNumber,
                 linePrefix: $parsedHeaderDto->linePrefix
             );
 
-            if ($decryptedPlaintext === null) {
+            if ($finalContentToParse === null) {
                 // DecryptionService should ideally throw its own specific exception,
                 // but if it returns null, we wrap it here.
                 throw new DecryptionErrorException(
@@ -108,25 +112,12 @@ class ProcessSiaDataContent
             }
             // Log::debug("Decryption successful for account {$parsedHeaderDto->panelAccountNumber}.");
 
-            // After decryption, plaintext is "PaddingBytes|ActualDataAndTimestamp"
-            $padSeparatorPos = strpos($decryptedPlaintext, self::PAD_SEPARATOR);
-            if ($padSeparatorPos === false) {
-                throw new GenericParsingException( // This indicates a severe decryption or padding error
-                    message: 'Decrypted data block missing mandatory pad separator "|". Possible decryption or padding scheme error.',
-                    fullRawFrame: $parsedHeaderDto->rawFrame,
-                    extractedMessageBody: $parsedHeaderDto->rawBody, // Body here is the *original encrypted* body
-                    errorContext: ErrorContext::BODY_PARSING,
-                    offsetWithinContext: (strlen($parsedHeaderDto->rawBody) - strlen($contentToProcess)) + 1,
-                    parsedHeaderParts: $headerForExceptionContext + ['decrypted_preview' => substr($decryptedPlaintext, 0, 50)]
-                );
-            }
-            // $padding = substr($decryptedPlaintext, 0, $padSeparatorPos); // For logging if needed
-            $finalContentToParse = substr($decryptedPlaintext, $padSeparatorPos + 1);
-            // Now $contentToParse holds "ActualData[...]OptionalExtData[...]OptionalTimestamp"
         }
 
+        $finalContentToParse = "[" . $finalContentToParse;
+
         // --- Common parsing logic for plaintext (either original or decrypted) ---
-        $parsedResult = $this->parsePlaintextSiaDataContent(
+        $parsedResult = $this->parsePlainTextSiaDataContent(
             contentToParse: $finalContentToParse,
             fullRawFrameForContext: $parsedHeaderDto->rawFrame,
             fullBodyForContext: $parsedHeaderDto->rawBody, // This is the *original* body
@@ -156,7 +147,7 @@ class ProcessSiaDataContent
      * Private helper to parse the actual plaintext content (message data, extended data, timestamp).
      * This is called with either originally unencrypted content or decrypted content.
      */
-    private function parsePlaintextSiaDataContent(
+    private function parsePlainTextSiaDataContent(
         string $contentToParse,
         string $fullRawFrameForContext,
         string $fullBodyForContext,
@@ -212,7 +203,7 @@ class ProcessSiaDataContent
                         parsedHeaderParts: $headerForExceptionContext
                     );
                 }
-                if (! ctype_upper($identifier)) {
+                if (!ctype_upper($identifier)) {
                     Log::debug('Potential extended data block did not start with an uppercase identifier. Stopping extended data parse.', ['char' => $identifier, 'offset' => $offsetOfThisContentInFullBody + $currentPos + 1, 'account' => $panelAccountNumberForLogging]);
                     break;
                 }
@@ -248,7 +239,7 @@ class ProcessSiaDataContent
                             }
                         } catch (CarbonInvalidFormatException $e) {
                             throw new GenericParsingException( /* ... as before ... */
-                                message: "Plaintext content parsing error: SIA Timestamp '{$rawSiaTimestamp}' parse failed: ".$e->getMessage(),
+                                message: "Plaintext content parsing error: SIA Timestamp '{$rawSiaTimestamp}' parse failed: " . $e->getMessage(),
                                 fullRawFrame: $fullRawFrameForContext,
                                 extractedMessageBody: $fullBodyForContext,
                                 errorContext: ErrorContext::BODY_PARSING,
@@ -287,6 +278,7 @@ class ProcessSiaDataContent
         // Check for any trailing unexpected data
         if ($currentPos < $contentLength) {
             $trailingData = substr($contentToParse, $currentPos);
+
             if (trim($trailingData) !== '') {
                 Log::warning('Unexpected trailing data found after parsing plaintext content.', [
                     'trailing_data_hex' => bin2hex($trailingData),

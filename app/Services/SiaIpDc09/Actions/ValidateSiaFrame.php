@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\SiaIpDc09;
+namespace App\Services\SiaIpDc09\Actions;
 
-use App\Contracts\Support\CrcCalculator as CrcCalculatorContract; // Import the contract
-use App\Services\SiaIpDc09\Data\ValidatedFrameDto;
+use App\Services\SiaIpDc09\Data\ValidatedFrameDto; // Import the contract
 use App\Services\SiaIpDc09\Enums\ErrorContext;
 use App\Services\SiaIpDc09\Exceptions\CrcMismatchException;
 use App\Services\SiaIpDc09\Exceptions\GenericParsingException;
+use App\Support\Crc\Contracts\CrcCalculator as CrcCalculatorContract;
 use Illuminate\Support\Facades\Log;
 
 // If using lorisleiva/laravel-actions:
