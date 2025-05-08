@@ -7,7 +7,7 @@ namespace App\Services\SiaIpDc09\Actions;
 use App\Services\SiaIpDc09\Contracts\DecryptionService;
 use App\Services\SiaIpDc09\Contracts\KeyManagementService;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log; // Keep Config for block_size fallback if needed
 
 class DecryptDataBlock implements DecryptionService
 {
@@ -28,7 +28,7 @@ class DecryptDataBlock implements DecryptionService
      * @param  string|null  $receiverNumber  Optional receiver number.
      * @param  string|null  $linePrefix  Optional line prefix.
      * @return string|null The decrypted and unpadded plaintext data (content after '|'),
-     *                     or null on failure (decryption, padding error).
+     *                     or null on failure (key/cipher retrieval, decryption, padding error).
      */
     public function handle(
         string $encryptedHexData,
@@ -43,37 +43,45 @@ class DecryptDataBlock implements DecryptionService
             'encrypted_hex_preview' => substr($encryptedHexData, 0, 64).(strlen($encryptedHexData) > 64 ? '...' : ''),
         ];
 
-        $cipher = strtolower(Config::get('SiaIpDc09.encryption.default_cipher', 'aes-128-cbc'));
-
-        $binaryKey = $this->keyManagementService->getKey(
+        $keyAndCipher = $this->keyManagementService->getKeyAndCipher(
             $panelAccountNumber,
             $receiverNumber,
-            $linePrefix,
-            $cipher
+            $linePrefix
         );
 
-        if ($binaryKey === null) {
-            Log::error('SIA Decryption: Failed to retrieve decryption key.', $logContext);
+        // CORRECTED Validation: Only need to check if null was returned
+        if ($keyAndCipher === null) {
+            Log::error('SIA Decryption: Failed to retrieve valid key and cipher from KeyManagementService.', $logContext);
 
+            // KMS implementation should have logged the specific reason
             return null;
         }
+
+        // If not null, we know it's array{0: string, 1: string}
+        [$binaryKey, $cipher] = $keyAndCipher;
         $logContext['cipher_used'] = $cipher;
 
-        $encryptedBytes = @hex2bin($encryptedHexData);
+        // KMS is assumed to have validated key length against cipher already.
+
+        // 2. Convert hex-encoded encrypted data to binary
+        $encryptedBytes = hex2bin($encryptedHexData);
         if ($encryptedBytes === false) {
             Log::error('SIA Decryption: Encrypted data is not valid hexadecimal.', $logContext);
 
             return null;
         }
 
+        // 3. Determine IV length and create all-zero IV
         $ivLength = openssl_cipher_iv_length($cipher);
         if ($ivLength === false || $ivLength <= 0) {
-            Log::error("SIA Decryption: Could not determine IV length for cipher '{$cipher}'.", $logContext);
+            // Log error if KMS provided a cipher for which IV length can't be determined
+            Log::error("SIA Decryption: Could not determine IV length for cipher '{$cipher}' provided by KMS.", $logContext);
 
             return null;
         }
         $iv = str_repeat("\0", $ivLength);
 
+        // 4. Perform decryption
         try {
             $decryptedWithPadding = openssl_decrypt(
                 data: $encryptedBytes,
@@ -93,15 +101,20 @@ class DecryptDataBlock implements DecryptionService
                 return null;
             }
 
-            // Validate decrypted block length
-            $blockSize = Config::get('SiaIpDc09.encryption.block_size', 16);
-            if (strlen($decryptedWithPadding) % $blockSize !== 0) {
-                Log::error("SIA Decryption: Decrypted data length is not a multiple of block size ({$blockSize}).", $logContext + ['decrypted_length' => strlen($decryptedWithPadding)]);
+            // 5. Validate decrypted block length
+            $blockSize = $this->getBlockSizeForCipher($cipher); // Use helper
+            if ($blockSize === null) {
+                Log::error("SIA Decryption: Could not determine block size for cipher '{$cipher}' to validate length.", $logContext);
 
-                return null;
+                return null; // Cannot proceed safely
+            }
+            if (strlen($decryptedWithPadding) % $blockSize !== 0) {
+                Log::error("SIA Decryption: Decrypted data length is not a multiple of block size ({$blockSize}). Possible data corruption or encryption error.", $logContext + ['decrypted_length' => strlen($decryptedWithPadding)]);
+
+                return null; // Treat as failure
             }
 
-            // Unpad the data
+            // 6. Unpad the data using internal helper
             return $this->unpadSiaData($decryptedWithPadding, $logContext);
 
         } catch (\Throwable $e) {
@@ -116,31 +129,33 @@ class DecryptDataBlock implements DecryptionService
 
     /**
      * Removes SIA-specific padding from the decrypted data.
-     * SIA padding scheme is: PaddingBytes + "|" + ActualDataAndTimestamp
-     *
-     * @param  string  $decryptedDataWithPadding  The raw output from openssl_decrypt (using OPENSSL_RAW_DATA).
-     * @param  array  $logContextForError  Logging context.
-     * @return string|null The unpadded data (content after "|"), or null if pad separator is not found.
      */
     private function unpadSiaData(string $decryptedDataWithPadding, array $logContextForError): ?string
     {
         $padSeparatorPos = strpos($decryptedDataWithPadding, self::PAD_SEPARATOR);
 
         if ($padSeparatorPos === false) {
-            Log::error("SIA Decryption Unpadding: Decrypted data block missing mandatory pad separator '|'. Possible decryption or padding scheme error.", $logContextForError + [
+            Log::error("SIA Decryption Unpadding: Decrypted data block missing mandatory pad separator '|'.", $logContextForError + [
                 'decrypted_preview_hex' => bin2hex(substr($decryptedDataWithPadding, 0, 50)),
             ]);
 
             return null;
         }
 
-        // The actual content is everything *after* the '|'
-        $actualContent = substr($decryptedDataWithPadding, $padSeparatorPos + 1);
+        // Return content after the separator
+        return substr($decryptedDataWithPadding, $padSeparatorPos + 1);
+    }
 
-        // Optional: Log padding information if needed for debugging
-        // $padding = substr($decryptedDataWithPadding, 0, $padSeparatorPos);
-        // Log::debug("SIA Unpadding successful.", $logContextForError + ['padding_length' => strlen($padding), 'actual_content_length' => strlen($actualContent)]);
+    /**
+     * Helper to get block size for common AES ciphers.
+     */
+    private function getBlockSizeForCipher(string $cipher): ?int
+    {
+        if (str_starts_with(strtolower($cipher), 'aes-')) {
+            return 16;
+        }
 
-        return $actualContent;
+        // Add other ciphers if necessary
+        return null;
     }
 }

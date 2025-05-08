@@ -7,9 +7,9 @@ namespace App\Services\SiaIpDc09\Actions;
 use App\Models\SiaDc09Message;
 use App\Services\SiaIpDc09\Enums\ProcessingStatus;
 use App\Services\SiaIpDc09\Enums\ResponseType;
-use App\Services\SiaIpDc09\Exceptions\InvalidFrameException;
+use App\Services\SiaIpDc09\Exceptions\InvalidFrameException; // For NAK timestamp
 use App\Services\SiaIpDc09\Exceptions\SiaMessageException;
-use App\Services\SiaIpDc09\Exceptions\TimestampInvalidException; // For NAK timestamp
+use App\Services\SiaIpDc09\Exceptions\TimestampInvalidException;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,24 +25,27 @@ class HandleMessage
     private ParseMessageFrame $parseMessageFrame;
 
     private DetermineSiaResponse $determineSiaResponse;
-    // private BuildAckResponse $buildAckResponse;
-    // private BuildNakResponse $buildNakResponse;
-    // private BuildDuhResponse $buildDuhResponse;
+
+    private BuildAckResponse $buildAckResponse;
+
+    private BuildNakResponse $buildNakResponse;
+
+    private BuildDuhResponse $buildDuhResponse;
 
     public function __construct(
         ExtractMessageFrame $extractMessageFrame,
         ParseMessageFrame $parseMessageFrame,
         DetermineSiaResponse $determineSiaResponse,
-        // BuildAckResponse $buildAckResponse,
-        // BuildNakResponse $buildNakResponse,
-        // BuildDuhResponse $buildDuhResponse
+        BuildAckResponse $buildAckResponse,
+        BuildNakResponse $buildNakResponse,
+        BuildDuhResponse $buildDuhResponse
     ) {
         $this->extractMessageFrame = $extractMessageFrame;
         $this->parseMessageFrame = $parseMessageFrame;
         $this->determineSiaResponse = $determineSiaResponse;
-        // $this->buildAckResponse = $buildAckResponse;
-        // $this->buildNakResponse = $buildNakResponse;
-        // $this->buildDuhResponse = $buildDuhResponse;
+        $this->buildAckResponse = $buildAckResponse;
+        $this->buildNakResponse = $buildNakResponse;
+        $this->buildDuhResponse = $buildDuhResponse;
     }
 
     /**
@@ -119,10 +122,10 @@ class HandleMessage
         switch ($responseType) {
             case ResponseType::ACK:
                 if ($siaMessage->processing_status === ProcessingStatus::PARSED) {
-                    //   $responseToSend = $this->buildAckResponse->handle($siaMessage);
+                    $responseToSend = $this->buildAckResponse->handle($siaMessage);
                 } else {
                     Log::error("ACK determined but message (ID: {$siaMessage->id}) was not successfully parsed. Forcing DUH.", ['status' => $siaMessage->processing_status->value]);
-                    //   $responseToSend = $this->buildDuhResponse->handle($siaMessage); // Fallback to DUH
+                    $responseToSend = $this->buildDuhResponse->handle($siaMessage); // Fallback to DUH
                 }
                 break;
             case ResponseType::NAK:
@@ -130,13 +133,13 @@ class HandleMessage
                 if ($parsingException instanceof TimestampInvalidException) {
                     $correctiveTimestamp = $parsingException->getCorrectiveNakTimestamp();
                 }
-                //  $responseToSend = $this->buildNakResponse->handle($correctiveTimestamp);
+                $responseToSend = $this->buildNakResponse->handle($correctiveTimestamp);
                 break;
             case ResponseType::DUH:
                 // $siaMessage would have context, or $parsingException would.
                 // BuildDuhResponse needs to be flexible enough to handle either.
                 $contextProvider = $parsingException ?? $siaMessage;
-                //   $responseToSend = $this->buildDuhResponse->handle($contextProvider);
+                $responseToSend = $this->buildDuhResponse->handle($contextProvider);
                 break;
             case ResponseType::NONE:
             default:
@@ -144,7 +147,6 @@ class HandleMessage
                 break;
         }
 
-        dd($responseType);
         // 5. Update Model & Log Final
         if ($responseToSend !== null) {
             $siaMessage->response_sent_hex = bin2hex($responseToSend);

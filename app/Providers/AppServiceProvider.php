@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Services\SiaIpDc09\Actions\ConfigKeyManagementService;
 use App\Services\SiaIpDc09\Actions\DecryptDataBlock;
+use App\Services\SiaIpDc09\Actions\EncryptDataBlock;
 use App\Services\SiaIpDc09\Contracts\DecryptionService;
+use App\Services\SiaIpDc09\Contracts\EncryptionService;
 use App\Services\SiaIpDc09\Contracts\KeyManagementService;
 use App\Support\Crc\Actions\CalculateCrc16Arc;
 use App\Support\Crc\Contracts\CrcCalculator;
@@ -25,8 +27,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Bind the EncryptionService contract to the EncryptDataBlock action
         // This action itself depends on KeyManagementService, which will be resolved by the container.
-        $this->app->bind(KeyManagementService::class, ConfigKeyManagementService::class);
+        $this->app->bind(EncryptionService::class, EncryptDataBlock::class);
+
         $this->app->bind(DecryptionService::class, DecryptDataBlock::class);
+        $this->app->bind(KeyManagementService::class, ConfigKeyManagementService::class);
+
     }
 
     /**

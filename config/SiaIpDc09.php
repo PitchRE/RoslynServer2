@@ -28,16 +28,16 @@ return [
     'supported_tokens' => [
         SiaToken::ADM_CID->value => [
             'name' => 'Ademco Contact ID',
-            'handler_class' => \Illuminate\Support\Facades\Log::class,
+            'handler_class' => \App\Services\NullHandler\Actions\NullHandler::class,
         ],
         SiaToken::SIA_DCS->value => [
             'name' => 'SIA DCS Text Format',
             // 'handler_class' => InterpretSiaDcsData::class, // Example: Add when implemented
-            'handler_class' => null, // Set to null or omit if not yet implemented
+            'handler_class' => \App\Services\NullHandler\Actions\NullHandler::class,
         ],
         SiaToken::NULL->value => [
             'name' => 'Null (Link Test)',
-            'handler_class' => null, // Link tests typically don't have a data interpreter in the same way
+            'handler_class' => \App\Services\NullHandler\Actions\NullHandler::class,
         ],
         // Add other tokens from SiaToken enum as you support them
     ],

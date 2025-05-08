@@ -11,58 +11,79 @@ use Illuminate\Support\Facades\Log;
 class ConfigKeyManagementService implements KeyManagementService
 {
     /**
-     * Retrieves the decryption key from the application's configuration.
-     * For SIA DC-09, this typically means a pre-shared key.
-     * This implementation uses a default key from config.
+     * Retrieves the default key (binary) and default cipher from config.
+     * Ignores panel/receiver/prefix identifiers in this basic implementation.
      *
-     * @param  string  $panelAccountNumber  (Not used in this basic implementation but part of contract for future extension)
-     * @param  string|null  $receiverNumber  (Not used in this basic implementation)
-     * @param  string|null  $linePrefix  (Not used in this basic implementation)
-     * @param  string  $cipher  The cipher being used (e.g., 'aes-128-cbc'), to potentially validate key length.
-     * @return string|null The raw binary decryption key, or null if not found or invalid.
+     * @param  string  $panelAccountNumber  (Not used)
+     * @param  string|null  $receiverNumber  (Not used)
+     * @param  string|null  $linePrefix  (Not used)
+     * @return array{?string, ?string}|null Array [binary key, cipher name] or null on failure.
      */
-    public function getKey(
+    public function getKeyAndCipher(
         string $panelAccountNumber,
         ?string $receiverNumber,
-        ?string $linePrefix,
-        string $cipher
-    ): ?string {
+        ?string $linePrefix
+    ): ?array {
         $keyHex = Config::get('SiaIpDc09.encryption.default_key_hex');
+        $cipher = strtolower(Config::get('SiaIpDc09.encryption.default_cipher', 'aes-128-cbc')); // Get default cipher
 
         if (empty($keyHex)) {
-            Log::error('SIA Decryption: Default encryption key (SIA_DEFAULT_KEY_HEX) is not configured.');
+            Log::error('SIA KeyManagement: Default encryption key (SIA_DEFAULT_KEY_HEX) is not configured.');
 
-            return null;
+            return null; // Cannot proceed without key
+        }
+        if (empty($cipher)) {
+            Log::error('SIA KeyManagement: Default cipher (SIA_DEFAULT_CIPHER) is not configured.');
+
+            return null; // Cannot proceed without cipher
         }
 
-        // Convert hex key to binary
         $binaryKey = @hex2bin($keyHex);
-
         if ($binaryKey === false) {
-            Log::error('SIA Decryption: Configured default key is not valid hexadecimal.', ['key_hex_preview' => substr($keyHex, 0, 10).'...']);
+            Log::error('SIA KeyManagement: Configured default key is not valid hexadecimal.', ['key_hex_preview' => substr($keyHex, 0, 10).'...']);
 
             return null;
         }
 
-        // Optional: Validate key length against cipher requirements
+        // Optional: Validate key length against the retrieved cipher *here* in the KMS if desired
+        if (! $this->validateKeyLengthForCipher($binaryKey, $cipher, $panelAccountNumber)) {
+            return null; // Error logged within validation method
+        }
+
+        return [$binaryKey, $cipher];
+    }
+
+    /**
+     * Internal helper to validate key length against cipher.
+     * Could be moved to a shared trait or utility if needed elsewhere.
+     */
+    private function validateKeyLengthForCipher(string $binaryKey, string $cipher, string $panelAccountNumber): bool
+    {
         $expectedKeyLengthBytes = match (strtolower($cipher)) {
             'aes-128-cbc' => 16,
             'aes-192-cbc' => 24,
             'aes-256-cbc' => 32,
-            default => null, // Unknown cipher, cannot validate length
+            default => null,
         };
 
-        if ($expectedKeyLengthBytes !== null && strlen($binaryKey) !== $expectedKeyLengthBytes) {
-            Log::critical('SIA Decryption: Configured key length does not match cipher requirements.', [
+        if ($expectedKeyLengthBytes === null) {
+            Log::warning("SIA KeyManagement: Cannot validate key length for unknown cipher '{$cipher}'.", ['account' => $panelAccountNumber]);
+
+            // Decide whether to allow unknown ciphers. Returning true allows it.
+            return true;
+        }
+
+        if (strlen($binaryKey) !== $expectedKeyLengthBytes) {
+            Log::error('SIA KeyManagement: Retrieved key length does not match cipher requirements.', [
                 'cipher' => $cipher,
                 'expected_length_bytes' => $expectedKeyLengthBytes,
                 'actual_length_bytes' => strlen($binaryKey),
                 'account' => $panelAccountNumber,
             ]);
 
-            return null;
+            return false;
         }
 
-        return $binaryKey;
+        return true;
     }
 }
