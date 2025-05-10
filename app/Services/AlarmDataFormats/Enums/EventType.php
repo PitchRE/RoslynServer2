@@ -1,6 +1,6 @@
 <?php
-namespace App\Services\AlarmDataFormats\Enums;
 
+namespace App\Services\AlarmDataFormats\Enums;
 
 /**
  * Defines the specific type of security event, providing more detail than EventCategory.
@@ -57,7 +57,7 @@ enum EventType: string
     case SYSTEM_ARM_BY_USER = 'system_arm_by_user'; // System armed by a specific user.
     case SYSTEM_ARM_AUTO = 'system_arm_auto';       // System armed automatically by schedule.
     case SYSTEM_DISARM = 'system_disarm';           // System disarmed.
-    case SYSTEM_DISARM_BY_USER = 'system_disarm_by_user';// System disarmed by a specific user.
+    case SYSTEM_DISARM_BY_USER = 'system_disarm_by_user'; // System disarmed by a specific user.
     case SYSTEM_DISARM_AUTO = 'system_disarm_auto';   // System disarmed automatically by schedule.
     case ZONE_BYPASS = 'zone_bypass';           // A specific zone has been bypassed.
     case ZONE_UNBYPASS = 'zone_unbypass';         // A specific zone is no longer bypassed.
@@ -76,7 +76,7 @@ enum EventType: string
     // --- SYSTEM TROUBLE TYPES ---
     case TROUBLE_AC_LOSS = 'trouble_ac_loss';       // Loss of main AC power.
     case TROUBLE_LOW_BATTERY_PANEL = 'trouble_low_battery_panel'; // Control panel backup battery is low.
-    case TROUBLE_LOW_BATTERY_DEVICE = 'trouble_low_battery_device';// Wireless device battery is low.
+    case TROUBLE_LOW_BATTERY_DEVICE = 'trouble_low_battery_device'; // Wireless device battery is low.
     case TROUBLE_COMM_PRIMARY = 'trouble_comm_primary'; // Failure on primary communication path.
     case TROUBLE_COMM_BACKUP = 'trouble_comm_backup'; // Failure on backup communication path.
     case TROUBLE_PHONE_LINE = 'trouble_phone_line';   // Phone line fault (POTS).
@@ -84,27 +84,27 @@ enum EventType: string
     case TROUBLE_DEVICE_SUPERVISION = 'trouble_device_supervision'; // Wireless device missing or not responding.
     case TROUBLE_ZONE_FAULT = 'trouble_zone_fault';   // Wiring fault on a specific zone.
     case TROUBLE_FUSE_BLOWN = 'trouble_fuse_blown';   // Blown fuse in the system.
-    case TROUBLE_GROUND_FAULT = 'trouble_ground_fault';// Ground fault detected.
+    case TROUBLE_GROUND_FAULT = 'trouble_ground_fault'; // Ground fault detected.
     case TROUBLE_SIREN = 'trouble_siren';           // Siren/bell circuit trouble.
     case TROUBLE_PRINTER = 'trouble_printer';       // Printer offline or paper out (for receivers).
 
     // --- MAINTENANCE SIGNAL TYPES ---
     case MAINT_TECHNICIAN_ON_SITE = 'maint_technician_on_site'; // Technician has arrived.
-    case MAINT_TECHNICIAN_OFF_SITE = 'maint_technician_off_site';// Technician has left.
+    case MAINT_TECHNICIAN_OFF_SITE = 'maint_technician_off_site'; // Technician has left.
 
     // --- TEST SIGNAL TYPES ---
     case TEST_MANUAL = 'test_manual';             // Test initiated manually by user/installer.
-    case TEST_PERIODIC_AUTOMATIC = 'test_periodic_automatic';// Scheduled automatic system test.
+    case TEST_PERIODIC_AUTOMATIC = 'test_periodic_automatic'; // Scheduled automatic system test.
     case TEST_WALK = 'test_walk';                 // System in walk-test mode.
     case TEST_COMMUNICATION = 'test_communication'; // Communication path test.
     case TEST_BATTERY = 'test_battery';           // Battery test.
 
     // --- SUPERVISORY SYSTEM (CSR GENERATED) ---
     case SUPERVISORY_FAILURE_TO_ARM = 'supervisory_failure_to_arm';   // Site failed to arm by scheduled time.
-    case SUPERVISORY_FAILURE_TO_DISARM = 'supervisory_failure_to_disarm';// Site failed to disarm by scheduled time.
+    case SUPERVISORY_FAILURE_TO_DISARM = 'supervisory_failure_to_disarm'; // Site failed to disarm by scheduled time.
     case SUPERVISORY_COMM_TEST_FAIL = 'supervisory_comm_test_fail'; // Expected communication test not received.
     case SUPERVISORY_LATE_TO_OPEN = 'supervisory_late_to_open';   // Site not disarmed by expected opening time.
-    case SUPERVISORY_EARLY_TO_CLOSE = 'supervisory_early_to_close';// Site armed before expected closing time.
+    case SUPERVISORY_EARLY_TO_CLOSE = 'supervisory_early_to_close'; // Site armed before expected closing time.
 
     // --- POWER EVENT TYPES (more specific than trouble) ---
     case POWER_AC_RESTORED = 'power_ac_restored';   // Main AC power restored.

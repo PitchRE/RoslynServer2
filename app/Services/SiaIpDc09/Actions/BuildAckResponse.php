@@ -46,9 +46,9 @@ class BuildAckResponse
 
         // Prepare Header Components (echoed from original)
         $ackSeq = str_pad($originalMessage->sequence_number ?? '0000', 4, '0', STR_PAD_LEFT);
-        $ackRcvPart = $originalMessage->receiver_number ? 'R' . $originalMessage->receiver_number : '';
-        $ackPrePart = 'L' . ($originalMessage->line_prefix ?? '0');
-        $ackAccPart = '#' . ($originalMessage->panel_account_number ?? 'ERROR');
+        $ackRcvPart = $originalMessage->receiver_number ? 'R'.$originalMessage->receiver_number : '';
+        $ackPrePart = 'L'.($originalMessage->line_prefix ?? '0');
+        $ackAccPart = '#'.($originalMessage->panel_account_number ?? 'ERROR');
 
         // Determine response token
         $isResponseEncrypted = $originalMessage->was_encrypted;
@@ -60,7 +60,7 @@ class BuildAckResponse
 
         if ($isResponseEncrypted) {
             // Content to be passed to Encryption Service (handles padding internally)
-            $contentToEncrypt = ']' . $ackTimestampString;
+            $contentToEncrypt = ']'.$ackTimestampString;
 
             $hexEncrypted = $this->encryptionService->handle(
                 $contentToEncrypt, // Pass only the actual content
@@ -74,23 +74,23 @@ class BuildAckResponse
                 throw new RuntimeException("Failed to encrypt ACK response for message ID {$originalMessage->id}");
             }
 
-            $siaBodyPart = '[' . $hexEncrypted; // Encrypted content is enclosed in brackets
+            $siaBodyPart = '['.$hexEncrypted; // Encrypted content is enclosed in brackets
 
         } else {
             // Unencrypted structure: []_Timestamp
-            $siaBodyPart = self::ACK_EMPTY_DATA . $ackTimestampString;
+            $siaBodyPart = self::ACK_EMPTY_DATA.$ackTimestampString;
         }
 
         // Assemble the full body for CRC/Length
-        $fullBody = $ackToken . $ackSeq . $ackRcvPart . $ackPrePart . $ackAccPart . $siaBodyPart;
+        $fullBody = $ackToken.$ackSeq.$ackRcvPart.$ackPrePart.$ackAccPart.$siaBodyPart;
 
         // Calculate CRC and Length
         $crc = $this->crcCalculator->handle($fullBody);
         $lengthHex = str_pad(strtoupper(dechex(strlen($fullBody))), 3, '0', STR_PAD_LEFT);
-        $lengthHeader = '0' . $lengthHex;
+        $lengthHeader = '0'.$lengthHex;
 
         // Assemble Final Frame
-        $frame = self::LF . $crc . $lengthHeader . $fullBody . self::CR;
+        $frame = self::LF.$crc.$lengthHeader.$fullBody.self::CR;
 
         $logContext['built_response_type'] = $isResponseEncrypted ? 'ACK (Encrypted)' : 'ACK (Unencrypted)';
         $logContext['response_frame_length'] = strlen($frame);
