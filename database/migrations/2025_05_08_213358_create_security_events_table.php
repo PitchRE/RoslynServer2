@@ -17,7 +17,6 @@ return new class extends Migration
 
             // Timestamps for event lifecycle
             $table->timestamp('occurred_at')->nullable()->index(); // When the event happened at the source
-            $table->timestamp('received_at')->index();          // When the CSR received the raw data
             $table->timestamp('processed_at')->nullable();      // When this normalized event record was created/processed
 
             $table->string('external_event_id')->nullable()->index(); // For correlation with other systems

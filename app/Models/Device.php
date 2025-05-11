@@ -2,16 +2,62 @@
 
 namespace App\Models;
 
-use App\Models\Site;
-use App\Models\Zone;
-use App\Models\Partition;
-use App\Models\SecurityEvent;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes; // Optional: if you want soft deletes
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property int $site_id
+ * @property string|null $name
+ * @property string|null $identifier
+ * @property string|null $model_name
+ * @property string|null $manufacturer
+ * @property string|null $firmware_version
+ * @property string|null $ip_address
+ * @property int|null $port
+ * @property string|null $communication_protocol
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon|null $installation_date
+ * @property \Illuminate\Support\Carbon|null $last_communication_at
+ * @property string|null $notes
+ * @property array<array-key, mixed>|null $configuration_details
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Partition> $partitions
+ * @property-read int|null $partitions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SecurityEvent> $securityEvents
+ * @property-read int|null $security_events_count
+ * @property-read \App\Models\Site $site
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Zone> $zones
+ * @property-read int|null $zones_count
+ * @method static \Database\Factories\DeviceFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereCommunicationProtocol($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereConfigurationDetails($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereFirmwareVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereIdentifier($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereInstallationDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereIpAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereLastCommunicationAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereManufacturer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereModelName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device wherePort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereSiteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Device extends Model
 {
     use HasFactory;
@@ -20,7 +66,7 @@ class Device extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'site_id',

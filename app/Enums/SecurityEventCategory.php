@@ -1,81 +1,81 @@
 <?php
 
-// app/Enums/EventCategory.php
+// app/Enums/SecurityEventCategory.php
 
 namespace App\Enums;
 
 enum SecurityEventCategory: string
 {
-    // --- Primary Alarm Categories (Immediate Threat/Response Typically Required) ---
+    // --- PRIMARY ALARM CATEGORIES (Immediate Threat / High Urgency) ---
     case ALARM_BURGLARY = 'alarm_burglary';
-    // Description: Indicates a potential unauthorized intrusion or breach of security at a premises.
-    // Implies: Likely requires dispatch of law enforcement. High priority.
+    // Description: Potential unauthorized intrusion, theft, or breach of physical security.
+    // Examples: Perimeter breach, interior motion, 24-hour zone violation.
 
     case ALARM_PANIC_DURESS = 'alarm_panic_duress';
-    // Description: A manually triggered alarm indicating a person is under threat, in a hold-up, or similar emergency.
-    // Implies: Often silent at the site, requires immediate law enforcement dispatch. Highest priority.
+    // Description: Manually triggered alarm indicating personal threat, robbery, or hostage situation.
+    // Examples: Panic button, duress code usage.
 
     case ALARM_FIRE = 'alarm_fire';
-    // Description: Detection of fire, smoke, high heat, or activation of a manual fire alarm.
-    // Implies: Requires immediate dispatch of fire department. Highest priority.
+    // Description: Detection of fire, smoke, excessive heat, or related fire system activation.
+    // Examples: Smoke detector, heat detector, pull station, sprinkler flow.
 
     case ALARM_MEDICAL = 'alarm_medical';
-    // Description: A request for emergency medical assistance, often triggered by a medical pendant or button.
-    // Implies: Requires immediate dispatch of emergency medical services (EMS). High priority.
+    // Description: Request for emergency medical assistance.
+    // Examples: Medical pendant, fixed medical button, fall detection.
 
     case ALARM_ENVIRONMENTAL_HAZARD = 'alarm_environmental_hazard';
-    // Description: Detection of critical environmental threats like gas leaks, carbon monoxide, major floods, or extreme temperatures posing immediate danger.
-    // Implies: May require dispatch of specialized services (fire dept, utility company) and site notification. High priority.
+    // Description: Detection of critical environmental threats posing immediate danger or significant risk.
+    // Examples: Gas leak, carbon monoxide, major flood, critical temperature extremes.
 
-    // --- Secondary Alarm / System Integrity Categories (Urgent, May Require Response) ---
+    // --- SYSTEM INTEGRITY & TECHNICAL ALARMS (Urgent, Potential System Compromise) ---
     case ALARM_SYSTEM_TAMPER = 'alarm_system_tamper';
-    // Description: Physical interference detected with security system components (panel, sensors, wiring).
-    // Implies: Potential attempt to disable the system; may require investigation or dispatch. Medium to High priority.
+    // Description: Physical interference detected with security system components, suggesting an attempt to disable or compromise.
+    // Examples: Panel tamper, sensor tamper, wiring tamper.
 
     case ALARM_TECHNICAL_CRITICAL = 'alarm_technical_critical';
-    // Description: A critical malfunction within the security panel or essential components that severely impairs system functionality and requires urgent attention.
-    // Implies: Site may be unprotected. Urgent service needed. Medium to High priority. (Distinct from general 'TROUBLE')
+    // Description: A critical malfunction within the security panel or essential components severely impairing system functionality.
+    // Examples: CPU failure, memory corruption, power supply overload, system lockout.
 
-    // --- System Operation & Access Categories (Routine, Informational, or Policy-Related) ---
+    // --- SYSTEM TROUBLE & NON-CRITICAL FAULTS (Requires Attention, Lower Urgency than Alarms) ---
+    case SYSTEM_TROUBLE_NON_CRITICAL = 'system_trouble_non_critical';
+    // Description: Non-critical faults or issues within the security system or its peripherals that may reduce functionality or require maintenance.
+    // Examples: AC loss, low battery (panel/device), communication path issues, zone wiring faults (non-tamper), sensor supervision loss.
+
+    // --- OPERATIONAL & ACCESS EVENTS (Routine System Usage, Access Control) ---
     case SYSTEM_OPERATION_ACCESS = 'system_operation_access';
-    // Description: Standard operational events such as arming/disarming the system, user access via codes, or door entry.
-    // Implies: Generally informational, but can be important for audit trails or if unexpected (e.g., disarm at odd hour). Low to Medium priority.
+    // Description: Standard operational events related to the use and management of the security system.
+    // Examples: Arming/disarming, zone bypassing, user code management, programming mode changes, system reset.
 
     case ACCESS_CONTROL_EVENT = 'access_control_event';
-    // Description: Events specifically from an access control system (card swipes, door forced/held open, access granted/denied).
-    // Implies: Informational or may indicate a security breach depending on the specific event type. Low to Medium priority.
+    // Description: Events specifically originating from an access control system or access control functionalities of a panel.
+    // Examples: Access granted/denied, door forced/held open, ACS point troubles.
 
-    // --- Trouble & Maintenance Categories (Non-Immediate, Requires Attention) ---
-    case SYSTEM_TROUBLE_NON_CRITICAL = 'system_trouble_non_critical';
-    // Description: Non-critical faults or issues within the security system (e.g., low battery, minor communication fault, zone trouble).
-    // Implies: System may have reduced functionality or requires future maintenance. Low to Medium priority.
+    // --- TEST & MAINTENANCE (System Verification & Upkeep) ---
+    case SYSTEM_TEST_SIGNAL = 'system_test_signal';
+    // Description: Events generated during manual or automatic testing of the security system, its components, or communication paths.
+    // Examples: Manual test, periodic auto-test, walk test, battery test, communication test.
 
     case MAINTENANCE_REQUIRED = 'maintenance_required';
-    // Description: Signals indicating the system requires scheduled maintenance or a specific service action.
-    // Implies: Informational, for scheduling service. Low priority.
+    // Description: Signals indicating the system requires scheduled maintenance, specific service action, or is in a maintenance mode.
+    // Examples: Technician login/logout, service mode entry, module added/removed for service, system disablements for maintenance.
 
-    // --- Test & Supervisory Categories (System Health & CSR Internal) ---
-    case SYSTEM_TEST_SIGNAL = 'system_test_signal';
-    // Description: Events generated during manual or automatic testing of the security system or its communication paths.
-    // Implies: Generally informational, to confirm system health. Low priority unless test fails.
-
+    // --- SUPERVISORY & AUTOMATED MONITORING (CSR or System Generated based on Rules/Schedules) ---
     case SUPERVISORY_CLIENT_SYSTEM = 'supervisory_client_system';
-    // Description: Events generated by the CSR backend based on monitoring client system behavior (e.g., failure to arm by schedule, missed test).
-    // Implies: May indicate a policy breach or potential security lapse at the client site. Medium priority.
+    // Description: Events generated by the CSR backend or panel based on monitoring client system behavior against schedules or expected patterns.
+    // Examples: Failure to arm/disarm by schedule, missed communication test, late to open/close, system inactivity.
 
     case SUPERVISORY_CSR_INFRASTRUCTURE = 'supervisory_csr_infrastructure';
-    // Description: Alerts related to the health and status of the CSR's own infrastructure (e.g., internet loss, server issues).
-    // Implies: Critical for CSR operations. High to Critical priority for internal teams.
+    // Description: Alerts related to the health, status, or operational issues of the CSR's own monitoring infrastructure.
+    // Examples: CSR internet connectivity loss, database issues, receiver offline.
 
-    // --- Informational Categories (Logging, Auditing) ---
+    // --- INFORMATIONAL LOGGING (Primarily for Audit & Context) ---
     case INFORMATIONAL_LOG = 'informational_log';
-    // Description: General, non-critical events primarily for logging, auditing, or providing context (e.g., panel reboot, programming mode entry).
-    // Implies: Low priority, typically no direct operator action needed unless correlated with other events.
+    // Description: General, non-critical events primarily for logging, auditing, or providing context, typically not requiring direct operator action unless correlated.
+    // Examples: Panel reboot not part of a trouble, event log status updates, successful remote sessions.
 
-    // --- Fallback ---
+    // --- FALLBACK / UNKNOWN ---
     case UNCLASSIFIED_EVENT = 'unclassified_event';
-    // Description: The category of the event could not be determined by the parsing or mapping logic.
-    // Implies: Requires manual review to classify and handle appropriately. Priority may need to be assessed.
+    // Description: The category of the event could not be determined from the source data or mapping logic. Requires review.
 
     /**
      * Provides a human-readable label for the category.
@@ -90,15 +90,17 @@ enum SecurityEventCategory: string
             self::ALARM_ENVIRONMENTAL_HAZARD => 'Environmental Hazard Alarm',
             self::ALARM_SYSTEM_TAMPER => 'System Tamper Alarm',
             self::ALARM_TECHNICAL_CRITICAL => 'Critical Technical Alarm',
-            self::SYSTEM_OPERATION_ACCESS => 'System Operation/Access',
-            self::ACCESS_CONTROL_EVENT => 'Access Control Event',
             self::SYSTEM_TROUBLE_NON_CRITICAL => 'System Trouble (Non-Critical)',
-            self::MAINTENANCE_REQUIRED => 'Maintenance Required',
+            self::SYSTEM_OPERATION_ACCESS => 'System Operation / Access',
+            self::ACCESS_CONTROL_EVENT => 'Access Control Event',
             self::SYSTEM_TEST_SIGNAL => 'System Test Signal',
+            self::MAINTENANCE_REQUIRED => 'Maintenance Required',
             self::SUPERVISORY_CLIENT_SYSTEM => 'Supervisory (Client System)',
             self::SUPERVISORY_CSR_INFRASTRUCTURE => 'Supervisory (CSR Infrastructure)',
             self::INFORMATIONAL_LOG => 'Informational Log',
             self::UNCLASSIFIED_EVENT => 'Unclassified Event',
+            // default => str_replace('_', ' ', ucwords(strtolower($this->value), '_')),
+
         };
     }
 
@@ -113,31 +115,31 @@ enum SecurityEventCategory: string
             self::ALARM_FIRE,
             self::ALARM_MEDICAL,
             self::ALARM_ENVIRONMENTAL_HAZARD,
+            self::ALARM_TECHNICAL_CRITICAL, // Often treated with similar urgency
         ]);
     }
 
     /**
-     * Indicates if this category is related to system trouble or maintenance.
+     * Indicates if this category is related to system trouble or maintenance (non-alarm).
      */
     public function isTroubleOrMaintenance(): bool
     {
         return in_array($this, [
-            self::ALARM_SYSTEM_TAMPER, // Can be seen as a form of trouble/integrity issue
-            self::ALARM_TECHNICAL_CRITICAL,
+            self::ALARM_SYSTEM_TAMPER, // Can also be seen as a trouble/integrity alarm
             self::SYSTEM_TROUBLE_NON_CRITICAL,
             self::MAINTENANCE_REQUIRED,
         ]);
     }
 
     /**
-     * Indicates if this category is primarily informational or routine.
+     * Indicates if this category is primarily informational or routine operational.
      */
     public function isInformationalOrRoutine(): bool
     {
         return in_array($this, [
             self::SYSTEM_OPERATION_ACCESS,
             self::ACCESS_CONTROL_EVENT,
-            self::SYSTEM_TEST_SIGNAL,
+            self::SYSTEM_TEST_SIGNAL, // Though failed tests might escalate
             self::INFORMATIONAL_LOG,
         ]);
     }

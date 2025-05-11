@@ -147,6 +147,8 @@ enum SecurityEventStatus: string
     // Description: Automated system attempted to resolve but failed; requires manual operator review.
     // Action: Event moved to an operator queue (likely 'NEW' or a specific review queue).
 
+    case PENDING_DEVICE_IDENTIFICATION = 'pending_device_identification'; // Event received, but originating device is unknown/unregistered.
+
     /**
      * Provides a human-readable label for the status.
      */
@@ -186,6 +188,7 @@ enum SecurityEventStatus: string
             self::AUTO_QUEUED_FOR_RESOLUTION => 'Auto - Queued for Resolution',
             self::AUTO_RESOLVED_SUCCESS => 'Auto - Resolved Successfully',
             self::AUTO_RESOLUTION_FAILED_NEEDS_REVIEW => 'Auto - Resolution Failed (Needs Review)',
+            self::PENDING_DEVICE_IDENTIFICATION => 'Pending Device Identification',
         };
     }
 
@@ -196,7 +199,7 @@ enum SecurityEventStatus: string
     public static function getOpenWorkflowStatuses(): array
     {
         return [
-            self::NEW,
+            self::NEW ,
             self::QUEUED_FOR_PROCESSING, // if operators need to see this queue
             self::ACKNOWLEDGED,
             self::INVESTIGATING,

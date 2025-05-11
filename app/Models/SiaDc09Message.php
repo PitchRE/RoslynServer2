@@ -12,32 +12,65 @@ use Illuminate\Database\Eloquent\Model; // Import your Enum
 
 /**
  * App\Models\SiaDc09Message
- *
+ * 
  * Represents a received SIA DC-09 message and its processing state.
  *
  * @property int $id
- * @property string|null $remote_ip
- * @property int|null $remote_port
- * @property string $raw_frame_hex
- * @property string|null $raw_body_hex
- * @property string|null $crc_header
- * @property string|null $length_header
- * @property string|null $protocol_token
- * @property bool $was_encrypted
- * @property string|null $sequence_number
- * @property string|null $receiver_number
- * @property string|null $line_prefix
- * @property string|null $panel_account_number
- * @property string|null $message_data
- * @property array|null $extended_data
- * @property string|null $raw_sia_timestamp
- * @property CarbonImmutable|null $sia_timestamp
- * @property ProcessingStatus $processing_status
- * @property string|null $processing_notes
- * @property string|null $response_sent_hex
- * @property CarbonImmutable|null $responded_at
- * @property CarbonImmutable $created_at
- * @property CarbonImmutable $updated_at
+ * @property string|null $remote_ip Source IP address of the message.
+ * @property int|null $remote_port Source port of the message.
+ * @property string $raw_frame_hex The complete raw message frame as received (hex-encoded). Storing hex for easier raw data inspection.
+ * @property string|null $raw_body_hex The extracted binary message body (hex-encoded), if frame validation passed.
+ * @property string|null $crc_header The 4-char hex CRC from the frame header.
+ * @property string|null $length_header The 4-char '0LLL' length string from the header.
+ * @property string|null $protocol_token The SIA protocol ID token (e.g., ADM-CID, SIA-DCS), without encryption marker.
+ * @property bool $was_encrypted Indicates if the original message was encrypted (had * prefix).
+ * @property string|null $sequence_number The 4-digit sequence number from the message.
+ * @property string|null $receiver_number The optional receiver number (R... part).
+ * @property string|null $line_prefix The line/account prefix (L... part).
+ * @property string|null $panel_account_number The panel account number (#... part).
+ * @property string|null $message_data The main data content from within the [...] block (decrypted if applicable).
+ * @property array<array-key, mixed>|null $extended_data Optional extended data fields as a JSON object.
+ * @property string|null $raw_sia_timestamp The raw timestamp string (_HH:MM:SS,MM-DD-YYYY) from the message.
+ * @property CarbonImmutable|null $sia_timestamp The parsed SIA timestamp (stored in UTC). Precision 0 for seconds.
+ * @property ProcessingStatus $processing_status Current processing status of the message.
+ * @property string|null $processing_notes Notes or error messages related to processing.
+ * @property string|null $response_sent_hex The SIA response sent back to the panel (hex-encoded).
+ * @property CarbonImmutable|null $responded_at Timestamp when the response was sent.
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string|null $raw_body_binary
+ * @property-read string|null $raw_frame_binary
+ * @property-read string|null $response_sent_binary
+ * @method static \Database\Factories\SiaDc09MessageFactory factory($count = null, $state = [])
+ * @method static Builder<static>|SiaDc09Message newModelQuery()
+ * @method static Builder<static>|SiaDc09Message newQuery()
+ * @method static Builder<static>|SiaDc09Message parsed()
+ * @method static Builder<static>|SiaDc09Message query()
+ * @method static Builder<static>|SiaDc09Message whereCrcHeader($value)
+ * @method static Builder<static>|SiaDc09Message whereCreatedAt($value)
+ * @method static Builder<static>|SiaDc09Message whereExtendedData($value)
+ * @method static Builder<static>|SiaDc09Message whereId($value)
+ * @method static Builder<static>|SiaDc09Message whereLengthHeader($value)
+ * @method static Builder<static>|SiaDc09Message whereLinePrefix($value)
+ * @method static Builder<static>|SiaDc09Message whereMessageData($value)
+ * @method static Builder<static>|SiaDc09Message wherePanelAccountNumber($value)
+ * @method static Builder<static>|SiaDc09Message whereProcessingNotes($value)
+ * @method static Builder<static>|SiaDc09Message whereProcessingStatus($value)
+ * @method static Builder<static>|SiaDc09Message whereProtocolToken($value)
+ * @method static Builder<static>|SiaDc09Message whereRawBodyHex($value)
+ * @method static Builder<static>|SiaDc09Message whereRawFrameHex($value)
+ * @method static Builder<static>|SiaDc09Message whereRawSiaTimestamp($value)
+ * @method static Builder<static>|SiaDc09Message whereReceiverNumber($value)
+ * @method static Builder<static>|SiaDc09Message whereRemoteIp($value)
+ * @method static Builder<static>|SiaDc09Message whereRemotePort($value)
+ * @method static Builder<static>|SiaDc09Message whereRespondedAt($value)
+ * @method static Builder<static>|SiaDc09Message whereResponseSentHex($value)
+ * @method static Builder<static>|SiaDc09Message whereSequenceNumber($value)
+ * @method static Builder<static>|SiaDc09Message whereSiaTimestamp($value)
+ * @method static Builder<static>|SiaDc09Message whereStatus(\App\Services\SiaIpDc09\Enums\ProcessingStatus $status)
+ * @method static Builder<static>|SiaDc09Message whereUpdatedAt($value)
+ * @method static Builder<static>|SiaDc09Message whereWasEncrypted($value)
+ * @mixin \Eloquent
  */
 class SiaDc09Message extends Model
 {

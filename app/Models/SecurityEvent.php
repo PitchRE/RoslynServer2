@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use App\Enums\SecurityEventType;
-use App\Enums\SecurityEventStatus;
 use App\Enums\SecurityEventCategory;
 use App\Enums\SecurityEventQualifier;
-use Illuminate\Database\Eloquent\Model;
+use App\Enums\SecurityEventStatus;
+use App\Enums\SecurityEventType;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
 
@@ -27,23 +26,18 @@ use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
  * App\Models\SecurityEvent
  *
  * @property int $id
- * @property Carbon|null $occurred_at
- * @property Carbon|null $received_at
- * @property Carbon|null $processed_at
+ * @property \Illuminate\Support\Carbon|null $occurred_at
+ * @property \Illuminate\Support\Carbon|null $processed_at
  * @property string|null $external_event_id
  * @property string|null $source_protocol
  * @property string|null $raw_event_code
  * @property string|null $raw_event_description
- * @property int|null $site_id
- * @property string|null $raw_account_identifier
  * @property int|null $device_id
  * @property string|null $raw_device_identifier
  * @property int|null $partition_id
  * @property string|null $raw_partition_identifier
  * @property int|null $zone_id
  * @property string|null $raw_zone_identifier
- * @property int|null $user_id Panel User ID
- * @property string|null $raw_user_identifier
  * @property SecurityEventCategory|null $event_category
  * @property SecurityEventType|null $event_type
  * @property SecurityEventQualifier|null $event_qualifier
@@ -51,95 +45,69 @@ use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
  * @property string|null $normalized_description
  * @property string|null $message_details
  * @property SecurityEventStatus $status
- * @property Carbon|null $acknowledged_at
+ * @property \Illuminate\Support\Carbon|null $acknowledged_at
  * @property int|null $acknowledged_by_operator_id
- * @property Carbon|null $resolved_at
+ * @property \Illuminate\Support\Carbon|null $resolved_at
  * @property int|null $resolved_by_operator_id
  * @property int|null $resolution_code_id
  * @property string|null $resolution_notes
- * @property int|null $source_message_id
  * @property string|null $source_message_type
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read Site|null $site
- * @property-read Device|null $device
- * @property-read Partition|null $partition
- * @property-read Zone|null $zone
- * @property-read User|null $panelUser
- * @property-read User|null $acknowledgedByOperator
- * @property-read User|null $resolvedByOperator
- * @property-read ResolutionCode|null $resolutionCode
- * @property-read Model|\Eloquent $sourceMessage
- * // Add other relationships if RawEventLog is used
+ * @property int|null $source_message_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $acknowledgedByOperator
+ * @property-read \App\Models\Device|null $device
+ * @property-read string $display_account_identifier
+ * @property-read string $display_panel_user
+ * @property-read string $display_zone_identifier
+ * @property-read \App\Models\User|null $panelUser
+ * @property-read \App\Models\Partition|null $partition
+ * @property-read \App\Models\ResolutionCode|null $resolutionCode
+ * @property-read \App\Models\User|null $resolvedByOperator
+ * @property-read \App\Models\Site|null $site
+ * @property-read Model|\Eloquent|null $sourceMessage
+ * @property-read \App\Models\Zone|null $zone
+ * @method static Builder<static>|SecurityEvent activeAlarms()
+ * @method static \Database\Factories\SecurityEventFactory factory($count = null, $state = [])
+ * @method static Builder<static>|SecurityEvent newModelQuery()
+ * @method static Builder<static>|SecurityEvent newQuery()
+ * @method static Builder<static>|SecurityEvent query()
+ * @method static Builder<static>|SecurityEvent requiresOperatorResolution()
+ * @method static Builder<static>|SecurityEvent whereAcknowledgedAt($value)
+ * @method static Builder<static>|SecurityEvent whereAcknowledgedByOperatorId($value)
+ * @method static Builder<static>|SecurityEvent whereCreatedAt($value)
+ * @method static Builder<static>|SecurityEvent whereDeviceId($value)
+ * @method static Builder<static>|SecurityEvent whereEventCategory($value)
+ * @method static Builder<static>|SecurityEvent whereEventQualifier($value)
+ * @method static Builder<static>|SecurityEvent whereEventType($value)
+ * @method static Builder<static>|SecurityEvent whereExternalEventId($value)
+ * @method static Builder<static>|SecurityEvent whereId($value)
+ * @method static Builder<static>|SecurityEvent whereMessageDetails($value)
+ * @method static Builder<static>|SecurityEvent whereNormalizedDescription($value)
+ * @method static Builder<static>|SecurityEvent whereOccurredAt($value)
+ * @method static Builder<static>|SecurityEvent wherePartitionId($value)
+ * @method static Builder<static>|SecurityEvent wherePriority($value)
+ * @method static Builder<static>|SecurityEvent whereProcessedAt($value)
+ * @method static Builder<static>|SecurityEvent whereRawDeviceIdentifier($value)
+ * @method static Builder<static>|SecurityEvent whereRawEventCode($value)
+ * @method static Builder<static>|SecurityEvent whereRawEventDescription($value)
+ * @method static Builder<static>|SecurityEvent whereRawPartitionIdentifier($value)
+ * @method static Builder<static>|SecurityEvent whereRawZoneIdentifier($value)
+ * @method static Builder<static>|SecurityEvent whereResolutionCodeId($value)
+ * @method static Builder<static>|SecurityEvent whereResolutionNotes($value)
+ * @method static Builder<static>|SecurityEvent whereResolvedAt($value)
+ * @method static Builder<static>|SecurityEvent whereResolvedByOperatorId($value)
+ * @method static Builder<static>|SecurityEvent whereSourceMessageId($value)
+ * @method static Builder<static>|SecurityEvent whereSourceMessageType($value)
+ * @method static Builder<static>|SecurityEvent whereSourceProtocol($value)
+ * @method static Builder<static>|SecurityEvent whereStatus($value)
+ * @method static Builder<static>|SecurityEvent whereUpdatedAt($value)
+ * @method static Builder<static>|SecurityEvent whereZoneId($value)
+ * @mixin \Eloquent
  */
 class SecurityEvent extends Model
 {
     use HasFactory;
-
-    // --- Property declarations for PHPStan ---
-    public ?Carbon $occurred_at;
-
-    public ?Carbon $received_at;
-
-    public ?Carbon $processed_at;
-
-    public ?string $external_event_id;
-
-    public ?string $source_protocol;
-
-    public ?string $raw_event_code;
-
-    public ?string $raw_event_description;
-
-    public ?int $site_id;
-
-    public ?string $raw_account_identifier;
-
-    public ?int $device_id;
-
-    public ?string $raw_device_identifier;
-
-    public ?int $partition_id;
-
-    public ?string $raw_partition_identifier;
-
-    public ?int $zone_id;
-
-    public ?string $raw_zone_identifier;
-
-    public ?int $user_id; // Panel User ID
-
-    public ?string $raw_user_identifier;
-
-    public ?SecurityEventCategory $event_category;
-
-    public ?SecurityEventType $event_type;
-
-    public ?SecurityEventQualifier $event_qualifier;
-
-    public ?int $priority;
-
-    public ?string $normalized_description;
-
-    public ?string $message_details;
-
-    public SecurityEventStatus $status; // Not nullable due to default
-
-    public ?Carbon $acknowledged_at;
-
-    public ?int $acknowledged_by_operator_id;
-
-    public ?Carbon $resolved_at;
-
-    public ?int $resolved_by_operator_id;
-
-    public ?int $resolution_code_id;
-
-    public ?string $resolution_notes;
-
-    public ?int $source_message_id;
-
-    public ?string $source_message_type;
 
     /**
      * The attributes that are mass assignable.
@@ -188,7 +156,6 @@ class SecurityEvent extends Model
      */
     protected $casts = [
         'occurred_at' => 'datetime',
-        'received_at' => 'datetime',
         'processed_at' => 'datetime',
         'acknowledged_at' => 'datetime',
         'resolved_at' => 'datetime',
