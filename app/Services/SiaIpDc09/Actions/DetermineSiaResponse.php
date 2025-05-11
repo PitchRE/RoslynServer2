@@ -126,7 +126,7 @@ class DetermineSiaResponse
                 // Token is known by Enum but not listed in supported_tokens config (effectively unsupported)
                 if (Config::get('SiaIpDc09.behavior.reject_unsupported_configured_tokens', true)) { // Check this config
                     Log::warning("DetermineSiaResponse: Token '{$tokenString}' is known by Enum but not configured in 'SiaIpDc09.supported_tokens'. Responding DUH.", $logContext);
-                    $siaMessage->processing_status = ProcessingStatus::TOKEN_NOT_SUPPORTED;
+                    $siaMessage->processing_status = ProcessingStatus::TOKEN_HANDLER_DISABLED;
                     $siaMessage->processing_notes = "Token '{$tokenString}' not configured as supported.";
                     $siaMessage->saveQuietly();
 
@@ -136,7 +136,7 @@ class DetermineSiaResponse
                 // Token is in supported_tokens config, but no handler_class is defined (or it's null)
                 if (Config::get('SiaIpDc09.behavior.reject_unsupported_configured_tokens', true)) {
                     Log::warning("DetermineSiaResponse: Token '{$tokenString}' is configured but has no handler_class. Responding DUH.", $logContext);
-                    $siaMessage->processing_status = ProcessingStatus::TOKEN_NOT_SUPPORTED;
+                    $siaMessage->processing_status = ProcessingStatus::TOKEN_HANDLER_MISSING;
                     $siaMessage->processing_notes = "Token '{$tokenString}' is configured with no interpretation handler.";
                     $siaMessage->saveQuietly();
 

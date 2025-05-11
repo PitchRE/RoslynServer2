@@ -193,6 +193,32 @@ class SiaDc09Message extends Model
         return null;
     }
 
+    /**
+     * Define the NAK-related processing statuses.
+     * These are the statuses that indicate this SiaDc09Message record itself
+     * resulted in a NAK being sent back to the panel.
+     *
+     * @return array<int, ProcessingStatus>
+     */
+    public static function getNakSentStatuses(): array
+    {
+        return [
+            ProcessingStatus::NAK_SENT_TIMESTAMP_REJECT,
+        ];
+    }
+
+    /**
+     * Determine if this specific SiaDc09Message record represents an instance
+     * where a NAK was sent in response to the incoming signal.
+     *
+     * This method checks the current processing_status of THIS message.
+     * It does NOT tell you if a subsequent successful message was a retransmission of this one.
+     */
+    public function wasNakd(): bool
+    {
+        return in_array($this->processing_status, self::getNakSentStatuses());
+    }
+
     public function scopeWhereStatus(Builder $query, ProcessingStatus $status): Builder
     {
         return $query->where('processing_status', $status);
