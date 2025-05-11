@@ -57,9 +57,8 @@ class RouteSiaMessage
                 return null;
             }
 
+
             $handlerClass = $siaTokenEnum->getInterpreterHandlerClass();
-
-
 
             if (!$handlerClass || !class_exists($handlerClass)) {
                 // ... (logging and error event creation for no handler - same as your code)

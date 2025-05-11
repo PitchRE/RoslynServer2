@@ -3,10 +3,8 @@
 namespace App\Observers;
 
 use App\Models\SiaDc09Message;
-use App\Services\SiaIpDc09\Enums\SiaToken;
-use App\Services\SiaIpDc09\Enums\ProcessingStatus;
 use App\Services\SiaIpDc09\Actions\RouteSiaMessage;
-use App\Services\AlarmDataFormats\AdemcoContactId\Actions\InterpretAdemcoContactIdData;
+use App\Services\SiaIpDc09\Enums\SiaToken;
 
 class SiaDc09MessageObserver
 {
@@ -15,6 +13,9 @@ class SiaDc09MessageObserver
      */
     public function created(SiaDc09Message $siaDc09Message): void
     {
+        if ($siaDc09Message->protocol_token != SiaToken::NULL->value) {
+            RouteSiaMessage::dispatch($siaDc09Message);
+        }
     }
 
     /**
@@ -23,8 +24,9 @@ class SiaDc09MessageObserver
     public function updated(SiaDc09Message $siaDc09Message): void
     {
 
-
-        RouteSiaMessage::dispatch($siaDc09Message);
+        if ($siaDc09Message->protocol_token != SiaToken::NULL->value) {
+            RouteSiaMessage::dispatch($siaDc09Message);
+        }
 
     }
 

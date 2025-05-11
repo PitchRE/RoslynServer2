@@ -54,6 +54,6 @@ enum SiaToken: string
     public function getInterpreterHandlerClass(): ?string
     {
         // Config path could be something like 'sia.token_handlers.ADM-CID'
-        return Config::get('SiaIpDc09.supported_tokens.' . $this->value . '.handler_class');
+        return Config::get('SiaIpDc09.supported_tokens.'.$this->value.'.handler_class');
     }
 }
