@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes; // Optional
 
 /**
- * 
- *
  * @property int $id
  * @property string $name
  * @property string|null $address_line_1
@@ -34,6 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes; // Optional
  * @property-read int|null $devices_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SecurityEvent> $securityEvents
  * @property-read int|null $security_events_count
+ *
  * @method static \Database\Factories\SiteFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Site newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Site newQuery()
@@ -57,6 +56,7 @@ use Illuminate\Database\Eloquent\SoftDeletes; // Optional
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Site whereStateProvince($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Site whereTimezone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Site whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Site extends Model

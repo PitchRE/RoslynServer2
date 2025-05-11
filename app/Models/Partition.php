@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
- * 
- *
  * @property int $id
  * @property int $device_id
  * @property string $name
@@ -26,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
  * @property-read \App\Models\Site|null $site
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Zone> $zones
  * @property-read int|null $zones_count
+ *
  * @method static \Database\Factories\PartitionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partition newQuery()
@@ -39,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partition whereNotes($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partition wherePartitionNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partition whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Partition extends Model

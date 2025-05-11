@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model; // Import your Enum
 
 /**
  * App\Models\SiaDc09Message
- * 
+ *
  * Represents a received SIA DC-09 message and its processing state.
  *
  * @property int $id
@@ -41,6 +41,7 @@ use Illuminate\Database\Eloquent\Model; // Import your Enum
  * @property-read string|null $raw_body_binary
  * @property-read string|null $raw_frame_binary
  * @property-read string|null $response_sent_binary
+ *
  * @method static \Database\Factories\SiaDc09MessageFactory factory($count = null, $state = [])
  * @method static Builder<static>|SiaDc09Message newModelQuery()
  * @method static Builder<static>|SiaDc09Message newQuery()
@@ -70,6 +71,7 @@ use Illuminate\Database\Eloquent\Model; // Import your Enum
  * @method static Builder<static>|SiaDc09Message whereStatus(\App\Services\SiaIpDc09\Enums\ProcessingStatus $status)
  * @method static Builder<static>|SiaDc09Message whereUpdatedAt($value)
  * @method static Builder<static>|SiaDc09Message whereWasEncrypted($value)
+ *
  * @mixin \Eloquent
  */
 class SiaDc09Message extends Model

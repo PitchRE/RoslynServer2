@@ -67,7 +67,13 @@ enum SecurityEventType: string
 
     // --- SYSTEM OPERATION / ACCESS TYPES ---
 
+    case OP_SYSTEM_ARM_BY_KEYSWITCH = 'op_system_arm_by_keyswitch';
+    case OP_SYSTEM_DISARM_BY_KEYSWITCH = 'op_system_disarm_by_keyswitch';
+
+    case OP_SYSTEM_ARM_DISARM_GENERIC = 'op_system_arm_disarm_generic';
     case OP_SYSTEM_ARM_DISARM_ACTIVITY_BY_USER = 'op_system_arm_disarm_activity_by_user'; // Generic for CID 401 before Q is processed
+
+    case OP_GROUP_CLOSING_BY_USER = 'op_group_closing_by_user'; // For CID 402
     case OP_SYSTEM_ARM_DISARM_ACTIVITY_AUTO = 'op_system_arm_disarm_activity_auto';   // Generic for CID 400/403 before Q
 
     case OP_SYSTEM_ARM_AWAY = 'op_system_arm_away';               // System armed in "away" mode.
@@ -253,7 +259,12 @@ enum SecurityEventType: string
             self::OP_SYSTEM_ARM_DISARM_ACTIVITY_BY_USER => 'System Arm/Disarm Activity by User',
             self::OP_SYSTEM_ARM_DISARM_ACTIVITY_AUTO => 'System Arm/Disarm Activity (Auto/Scheduled)',
 
-            self::MAINT_LICENSE_EXPIRY_NOTIFY => 'License Expiration Notify',
+            self::OP_SYSTEM_ARM_DISARM_GENERIC => 'System Arm/Disarm (Generic/Keyswitch)',
+            self::OP_SYSTEM_ARM_BY_KEYSWITCH => 'System Armed by Keyswitch',
+            self::OP_SYSTEM_DISARM_BY_KEYSWITCH => 'System Disarmed by Keyswitch',
+            self::OP_GROUP_CLOSING_BY_USER => 'Group Closing by User',
+
+            self::MAINT_LICENSE_EXPIRY_NOTIFY => 'maint_license_expiry_notify',
 
             default => str_replace(['_', '-'], ' ', ucwords(strtolower($this->value), '_-')),
         };

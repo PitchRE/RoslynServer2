@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes; // Optional: if you want soft deletes
 
 /**
- * 
- *
  * @property int $id
  * @property int $site_id
  * @property string|null $name
@@ -35,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes; // Optional: if you want soft dele
  * @property-read \App\Models\Site $site
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Zone> $zones
  * @property-read int|null $zones_count
+ *
  * @method static \Database\Factories\DeviceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Device newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Device newQuery()
@@ -56,6 +55,7 @@ use Illuminate\Database\Eloquent\SoftDeletes; // Optional: if you want soft dele
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Device wherePort($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereSiteId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Device whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Device extends Model

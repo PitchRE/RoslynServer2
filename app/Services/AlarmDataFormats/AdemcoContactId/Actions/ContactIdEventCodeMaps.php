@@ -205,35 +205,80 @@ class ContactIdEventCodeMaps
             '393' => ['event_type' => SecurityEventType::MAINT_SERVICE_MODE_ENTERED, 'category' => SecurityEventCategory::MAINTENANCE_REQUIRED, 'description' => 'Maintenance Alert', 'priority' => 2],
 
             // === OPEN/CLOSE (Page 4) ===
-            '400' => [
-                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_AUTO,
+            '400' => [ // Open/Close (Generic - e.g., Keyswitch, not by user code, not explicitly auto)
+                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_GENERIC, // Corrected: More generic base
                 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS,
-                'description' => 'Open/Close (Scheduled/Keyswitch)',
+                'description' => 'Open/Close (e.g., Keyswitch)',
                 'priority' => 1,
-                'qualifier_map' => [self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED, self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED],
-                'type_map' => [self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_AUTO_SCHEDULE, self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_AUTO_SCHEDULE],
+                'qualifier_map' => [
+                    self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED, // E=Open
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED,  // R=Close
+                ],
+                'type_map' => [ // More specific type based on Q
+                    self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_BY_KEYSWITCH, // Or a generic DISARM if keyswitch not certain
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_BY_KEYSWITCH,   // Or a generic ARM
+                ],
+                '_dynamic_mapping' => true,
             ],
-            '401' => [
-                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_BY_USER,
+            '401' => [ // Open/Close by User
+                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_BY_USER, // Generic base for user action
                 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS,
                 'description' => 'Open/Close by User',
                 'priority' => 1,
-                'qualifier_map' => [self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED, self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED],
-                'type_map' => [self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_BY_USER, self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_BY_USER],
+                'qualifier_map' => [
+                    self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED,
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED,
+                ],
+                'type_map' => [
+                    self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_BY_USER,
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_BY_USER,
+                ],
+                '_dynamic_mapping' => true,
             ],
-            '402' => ['event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_BY_USER, 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS, 'description' => 'Group Open/Close by User', 'priority' => 1], // Needs dynamic map like 401
-            '403' => [
-                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_AUTO,
+            '402' => [ // Group O/C - Document says "Closing-Group User #"
+                'event_type' => SecurityEventType::OP_GROUP_CLOSING_BY_USER, // Specific type for group closing
                 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS,
-                'description' => 'Automatic Open/Close',
+                'description' => 'Group Closing by User',
                 'priority' => 1,
-                'qualifier_map' => [self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED, self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED],
-                'type_map' => [self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_AUTO_SCHEDULE, self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_AUTO_SCHEDULE],
+                // This is typically only a Closing (R - Q=3). If an "E" (Q=1) is sent for 402, it's unusual.
+                // We can assume it's primarily a closing event.
+                'qualifier' => SecurityEventQualifier::SYSTEM_SECURED_ARMED, // Default for closing
+                // If Q=1 could ever be valid for 402 (Group Opening), a dynamic map would be needed.
+                // For now, assuming it's always a closing as per doc "Closing-Group User #"
+            ],
+            '403' => [ // AUTOMATIC OPEN/CLOSE
+                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_AUTO, // Correct generic base for auto
+                'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS,
+                'description' => 'Automatic Open/Close (Scheduled/Power up Armed)',
+                'priority' => 1,
+                'qualifier_map' => [
+                    self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED,
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED,
+                ],
+                'type_map' => [
+                    self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_AUTO_SCHEDULE,
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_AUTO_SCHEDULE,
+                ],
+                '_dynamic_mapping' => true,
             ],
             '404' => ['event_type' => SecurityEventType::SUPERVISORY_LATE_TO_OPEN_SCHEDULE, 'category' => SecurityEventCategory::SUPERVISORY_CLIENT_SYSTEM, 'description' => 'Late to Open/Close', 'priority' => 2], // Needs Q logic
             '405' => ['event_type' => SecurityEventType::OP_SYSTEM_SCHEDULE_CHANGE, 'category' => SecurityEventCategory::INFORMATIONAL_LOG, 'description' => 'Deferred Open/Close', 'priority' => 1], // Needs Q
             '406' => ['event_type' => SecurityEventType::OP_SYSTEM_DISARM_BY_USER, 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS, 'description' => 'Cancel by User (Opening after alarm)', 'priority' => 1, 'qualifier' => SecurityEventQualifier::USER_INITIATED_ACTION],
-            '407' => ['event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_ACTIVITY_BY_USER, 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS, 'description' => 'Remote Arm/Disarm (Keyswitch)', 'priority' => 1], // Needs dynamic map like 401
+            '407' => [ // REMOTE ARM/DISARM - Document says "Opening-Remote / Closing-Remote"
+                'event_type' => SecurityEventType::OP_SYSTEM_ARM_DISARM_GENERIC, // Can use the generic or a specific "REMOTE" base
+                'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS,
+                'description' => 'Remote Arm/Disarm (e.g., App, Keyswitch if panel maps it here)',
+                'priority' => 1,
+                'qualifier_map' => [
+                    self::QUALIFIER_NEW_EVENT => SecurityEventQualifier::SYSTEM_UNSECURED_DISARMED,
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventQualifier::SYSTEM_SECURED_ARMED,
+                ],
+                'type_map' => [ // Could map to more specific remote arm/disarm types if you have them
+                    self::QUALIFIER_NEW_EVENT => SecurityEventType::OP_SYSTEM_DISARM_BY_KEYSWITCH, // Or OP_SYSTEM_DISARM_REMOTE
+                    self::QUALIFIER_RESTORAL_SECURE => SecurityEventType::OP_SYSTEM_ARM_BY_KEYSWITCH,   // Or OP_SYSTEM_ARM_REMOTE
+                ],
+                '_dynamic_mapping' => true,
+            ],
             '408' => ['event_type' => SecurityEventType::OP_SYSTEM_ARM_AWAY, 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS, 'description' => 'Quick Arm (Away - Closing)', 'priority' => 1, 'qualifier' => SecurityEventQualifier::SYSTEM_SECURED_ARMED],
             '409' => ['event_type' => SecurityEventType::OP_SYSTEM_ARM_STAY, 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS, 'description' => 'Keyswitch Open/Close', 'priority' => 1], // This is Keyswitch O/C, needs dynamic mapping
             '435' => ['event_type' => SecurityEventType::OP_DOOR_ACCESS_GRANTED, 'category' => SecurityEventCategory::SYSTEM_OPERATION_ACCESS, 'description' => 'Second Person Access (User)', 'priority' => 1],

@@ -11,10 +11,6 @@ enum SecurityEventStatus: string
     // Description: Event has just been received or created by the system.
     // Action: Requires initial operator review, triage, and acknowledgment. This is the entry point for most events.
 
-    case QUEUED_FOR_PROCESSING = 'queued_for_processing';
-    // Description: Event has been received but is waiting in a queue for initial automated or manual processing/parsing.
-    // Action: System will pick it up; operators might see this for very brief periods during high load.
-
     // --- Operator Interaction / Investigation States ---
     case ACKNOWLEDGED = 'acknowledged';
     // Description: An operator has seen and taken ownership/responsibility for the event.
@@ -156,7 +152,6 @@ enum SecurityEventStatus: string
     {
         return match ($this) {
             self::NEW => 'New',
-            self::QUEUED_FOR_PROCESSING => 'Queued for Processing',
             self::ACKNOWLEDGED => 'Acknowledged',
             self::INVESTIGATING => 'Investigating',
             self::INFORMATION_REQUESTED => 'Information Requested',
@@ -200,7 +195,6 @@ enum SecurityEventStatus: string
     {
         return [
             self::NEW ,
-            self::QUEUED_FOR_PROCESSING, // if operators need to see this queue
             self::ACKNOWLEDGED,
             self::INVESTIGATING,
             self::INFORMATION_REQUESTED,

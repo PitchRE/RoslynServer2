@@ -21,7 +21,7 @@ class SiaDc09MessageObserver
     {
 
         if ($siaDc09Message->processing_status == ProcessingStatus::PARSED && $siaDc09Message->protocol_token == SiaToken::ADM_CID->value) {
-            InterpretAdemcoContactIdData::dispatch($siaDc09Message->message_data, $siaDc09Message->panel_account_number, $siaDc09Message->sia_timestamp, $siaDc09Message->panel_account_number);
+            InterpretAdemcoContactIdData::dispatch($siaDc09Message->message_data, $siaDc09Message->sia_timestamp, $siaDc09Message->panel_account_number, $siaDc09Message);
 
         }
     }

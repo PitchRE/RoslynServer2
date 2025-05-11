@@ -34,6 +34,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
  * @property string|null $raw_event_description
  * @property int|null $device_id
  * @property string|null $raw_device_identifier
+ * @property string|null $raw_account_identifier
+ * @property int|null $panel_user_id
+ * @property string|null $raw_panel_user_identifier
  * @property int|null $partition_id
  * @property string|null $raw_partition_identifier
  * @property int|null $zone_id
@@ -67,6 +70,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
  * @property-read \App\Models\Site|null $site
  * @property-read Model|\Eloquent|null $sourceMessage
  * @property-read \App\Models\Zone|null $zone
+ *
  * @method static Builder<static>|SecurityEvent activeAlarms()
  * @method static \Database\Factories\SecurityEventFactory factory($count = null, $state = [])
  * @method static Builder<static>|SecurityEvent newModelQuery()
@@ -85,12 +89,15 @@ use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
  * @method static Builder<static>|SecurityEvent whereMessageDetails($value)
  * @method static Builder<static>|SecurityEvent whereNormalizedDescription($value)
  * @method static Builder<static>|SecurityEvent whereOccurredAt($value)
+ * @method static Builder<static>|SecurityEvent wherePanelUserId($value)
  * @method static Builder<static>|SecurityEvent wherePartitionId($value)
  * @method static Builder<static>|SecurityEvent wherePriority($value)
  * @method static Builder<static>|SecurityEvent whereProcessedAt($value)
+ * @method static Builder<static>|SecurityEvent whereRawAccountIdentifier($value)
  * @method static Builder<static>|SecurityEvent whereRawDeviceIdentifier($value)
  * @method static Builder<static>|SecurityEvent whereRawEventCode($value)
  * @method static Builder<static>|SecurityEvent whereRawEventDescription($value)
+ * @method static Builder<static>|SecurityEvent whereRawPanelUserIdentifier($value)
  * @method static Builder<static>|SecurityEvent whereRawPartitionIdentifier($value)
  * @method static Builder<static>|SecurityEvent whereRawZoneIdentifier($value)
  * @method static Builder<static>|SecurityEvent whereResolutionCodeId($value)
@@ -103,6 +110,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
  * @method static Builder<static>|SecurityEvent whereStatus($value)
  * @method static Builder<static>|SecurityEvent whereUpdatedAt($value)
  * @method static Builder<static>|SecurityEvent whereZoneId($value)
+ *
  * @mixin \Eloquent
  */
 class SecurityEvent extends Model
@@ -123,6 +131,7 @@ class SecurityEvent extends Model
         'raw_event_code',
         'raw_event_description',
         'site_id',
+        'raw_account_identifier',
         'raw_account_identifier',
         'device_id',
         'raw_device_identifier',
@@ -172,7 +181,7 @@ class SecurityEvent extends Model
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'status' => SecurityEventStatus::NEW ,
+        'status' => SecurityEventStatus::NEW,
     ];
 
     // --- RELATIONSHIPS ---
@@ -237,7 +246,7 @@ class SecurityEvent extends Model
     public function scopeRequiresOperatorResolution(Builder $query): Builder
     {
         // Ensure SecurityEventStatus::getOpenWorkflowStatuses() exists and is static
-        $openStatuses = array_map(fn($status) => $status->value, SecurityEventStatus::getOpenWorkflowStatuses());
+        $openStatuses = array_map(fn ($status) => $status->value, SecurityEventStatus::getOpenWorkflowStatuses());
 
         return $query->whereIn('status', $openStatuses)
             ->where(function (Builder $q) {

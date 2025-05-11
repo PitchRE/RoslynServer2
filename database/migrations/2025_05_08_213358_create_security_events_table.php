@@ -19,8 +19,6 @@ return new class extends Migration
             $table->timestamp('occurred_at')->nullable()->index(); // When the event happened at the source
             $table->timestamp('processed_at')->nullable();      // When this normalized event record was created/processed
 
-            $table->string('external_event_id')->nullable()->index(); // For correlation with other systems
-
             // Source Information
             $table->string('source_protocol')->nullable()->index(); // e.g., CONTACT_ID, SIA_DC09, SYSTEM_GENERATED
             $table->string('raw_event_code')->nullable();
@@ -28,6 +26,10 @@ return new class extends Migration
 
             $table->foreignId('device_id')->nullable()->constrained('devices')->onDelete('set null'); // Or your devices table name
             $table->string('raw_device_identifier')->nullable();
+            $table->string('raw_account_identifier')->nullable();
+
+            $table->foreignId('panel_user_id')->nullable()->constrained('panel_users')->onDelete('set null'); // Or your devices table name
+            $table->string('raw_panel_user_identifier')->nullable();
 
             // Location Specifics
             $table->foreignId('partition_id')->nullable()->constrained('partitions')->onDelete('set null'); // Or your partitions table

@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
- * 
- *
  * @property int $id
  * @property int $site_id
  * @property int $device_id
@@ -30,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SecurityEvent> $securityEvents
  * @property-read int|null $security_events_count
  * @property-read \App\Models\Site|null $site
+ *
  * @method static \Database\Factories\ZoneFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Zone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Zone newQuery()
@@ -48,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Zone whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Zone whereZoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Zone whereZoneType($value)
+ *
  * @mixin \Eloquent
  */
 class Zone extends Model
