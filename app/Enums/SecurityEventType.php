@@ -6,6 +6,7 @@ namespace App\Enums;
 
 enum SecurityEventType: string
 {
+    case OP_SYSTEM_ARM_DISARM_BY_USER = 'op_system_arm_disarm_by_user'; // General Arm/Disarm by user, specific determined by qualifier
     // --- BURGLARY ALARM TYPES ---
     case BURGLARY_PERIMETER = 'burglary_perimeter';   // Breach of external defenses (doors, windows).
     case BURGLARY_INTERIOR = 'burglary_interior';     // Intrusion detected within the protected area.
@@ -119,6 +120,8 @@ enum SecurityEventType: string
     case TEST_BATTERY_CONDITION = 'test_battery_condition';     // System performed a test of its backup battery.
     case TEST_SIREN_BELL_OUTPUT = 'test_siren_bell_output';   // System performed a test of its siren/bell outputs.
 
+    case TEST_COMMUNICATION = 'test_communication';
+
     // --- SUPERVISORY (CSR GENERATED - CLIENT SYSTEM FOCUSED) ---
     case SUPERVISORY_FAILURE_TO_ARM_SCHEDULE = 'supervisory_failure_to_arm_schedule'; // Site failed to arm by a predefined schedule.
     case SUPERVISORY_FAILURE_TO_DISARM_SCHEDULE = 'supervisory_failure_to_disarm_schedule'; // Site failed to disarm by a predefined schedule.
@@ -153,6 +156,7 @@ enum SecurityEventType: string
             self::SUPERVISORY_FAILURE_TO_ARM_SCHEDULE => 'Failure to Arm by Schedule',
             self::CSR_INFRA_INTERNET_CONNECTIVITY_LOSS => 'CSR Internet Connectivity Loss',
             self::UNKNOWN_EVENT_TYPE => 'Unknown Event Type',
+            self::TEST_COMMUNICATION => 'Communication Test',
             // ... add all other cases
             default => str_replace('_', ' ', ucwords(strtolower($this->value), '_')), // Fallback to a formatted version of the case name
         };

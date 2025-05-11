@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use App\Enums\SecurityEventType;
+use App\Enums\SecurityEventStatus;
 use App\Enums\SecurityEventCategory;
 use App\Enums\SecurityEventQualifier;
-use App\Enums\SecurityEventStatus;
-use App\Enums\SecurityEventType;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo; // For date types
 
 // --- Assuming these models exist ---
@@ -204,7 +205,7 @@ class SecurityEvent extends Model
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'status' => SecurityEventStatus::NEW,
+        'status' => SecurityEventStatus::NEW ,
     ];
 
     // --- RELATIONSHIPS ---
@@ -215,9 +216,16 @@ class SecurityEvent extends Model
         return $this->morphTo();
     }
 
-    public function site(): BelongsTo
+    public function site(): HasOneThrough
     {
-        return $this->belongsTo(Site::class, 'site_id');
+        return $this->hasOneThrough(
+            Site::class,   // Final model
+            Device::class, // Intermediate model
+            'id',          // Foreign key on Device table...
+            'id',          // Foreign key on Site table...
+            'device_id',   // Local key on current model (ModelA)...
+            'site_id'      // Local key on Device table...
+        );
     }
 
     public function device(): BelongsTo
@@ -262,7 +270,7 @@ class SecurityEvent extends Model
     public function scopeRequiresOperatorResolution(Builder $query): Builder
     {
         // Ensure SecurityEventStatus::getOpenWorkflowStatuses() exists and is static
-        $openStatuses = array_map(fn ($status) => $status->value, SecurityEventStatus::getOpenWorkflowStatuses());
+        $openStatuses = array_map(fn($status) => $status->value, SecurityEventStatus::getOpenWorkflowStatuses());
 
         return $query->whereIn('status', $openStatuses)
             ->where(function (Builder $q) {

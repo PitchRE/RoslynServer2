@@ -103,7 +103,7 @@ class HandleMessage
             $responseType = ResponseType::DUH; // Safest bet for unexpected server-side error
         } finally {
             if ($siaMessage->isDirty()) {
-                $siaMessage->saveQuietly();
+                $siaMessage->save();
             }
         }
 
@@ -156,7 +156,7 @@ class HandleMessage
             Log::info("SIA message processed. No response sent (Type: {$responseType->value}).", ['message_id' => $siaMessage->id]);
         }
         if ($siaMessage->isDirty()) {
-            $siaMessage->saveQuietly();
+            $siaMessage->save();
         }
 
         return $responseToSend;

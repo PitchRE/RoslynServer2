@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\SiaDc09Message;
+use App\Observers\SiaDc09MessageObserver;
 use App\Services\SiaIpDc09\Actions\ConfigKeyManagementService;
 use App\Services\SiaIpDc09\Actions\DecryptDataBlock;
 use App\Services\SiaIpDc09\Actions\EncryptDataBlock;
@@ -39,6 +41,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        SiaDc09Message::observe(SiaDc09MessageObserver::class);
     }
 }

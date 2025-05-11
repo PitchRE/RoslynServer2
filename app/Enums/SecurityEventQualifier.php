@@ -121,6 +121,7 @@ enum SecurityEventQualifier: string
     // Description: The event has a minor or limited impact.
     // Implies: Less severe consequences.
 
+    case SCHEDULE_VIOLATION = 'schedule_violation';
     // --- Generic / Fallback ---
     case NOT_APPLICABLE = 'not_applicable';
     // Description: No specific qualifier is relevant or necessary for this event type beyond what the EventType itself conveys.
@@ -136,6 +137,7 @@ enum SecurityEventQualifier: string
     public function label(): string
     {
         return match ($this) {
+            self::SCHEDULE_VIOLATION => 'Schedule Violation',
             self::ACTIVATION => 'Activation / New Event',
             self::RESTORAL => 'Restoral / Cleared',
             self::CONDITION_PERSISTS => 'Condition Persists',
