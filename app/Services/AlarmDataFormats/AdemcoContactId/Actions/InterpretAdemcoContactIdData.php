@@ -7,7 +7,6 @@ use App\Enums\SecurityEventQualifier;
 use App\Enums\SecurityEventStatus;
 use App\Enums\SecurityEventType;
 use App\Models\SecurityEvent;
-use App\Services\AlarmDataFormats\Actions\EnrichSecurityEventWithRelations;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +32,6 @@ class InterpretAdemcoContactIdData
      * @param  CarbonImmutable  $occurredAt  The time the event occurred or was received.
      * @param  string|null  $csrDeviceIdentifier  Optional: The primary identifier used by the CSR to identify the device
      *                                            (e.g., receiver line + panel account, unique panel serial if centrally managed).
-     * @return SecurityEvent|null A new, unsaved SecurityEvent model instance or null on failure.
      */
     public function handle(
         string $rawMessageData,
@@ -130,10 +128,6 @@ class InterpretAdemcoContactIdData
             $descParts[] = "User: {$localRawUserIdentifier}";
         }
         $securityEvent->normalized_description = implode(' - ', $descParts);
-
-        $securityEvent = EnrichSecurityEventWithRelations::run($securityEvent);
-
-        $securityEvent->save();
 
         return $securityEvent;
 

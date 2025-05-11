@@ -194,7 +194,7 @@ enum SecurityEventStatus: string
     public static function getOpenWorkflowStatuses(): array
     {
         return [
-            self::NEW ,
+            self::NEW,
             self::ACKNOWLEDGED,
             self::INVESTIGATING,
             self::INFORMATION_REQUESTED,

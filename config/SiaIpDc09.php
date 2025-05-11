@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Services\AlarmDataFormats\SiaDcs\Actions\InterpretSiaDcsData; // Example if you add SIA-DCS
 use App\Services\SiaIpDc09\Enums\SiaToken;
 
 return [
@@ -28,12 +27,7 @@ return [
     'supported_tokens' => [
         SiaToken::ADM_CID->value => [
             'name' => 'Ademco Contact ID',
-            'handler_class' => \App\Services\NullHandler\Actions\NullHandler::class,
-        ],
-        SiaToken::SIA_DCS->value => [
-            'name' => 'SIA DCS Text Format',
-            // 'handler_class' => InterpretSiaDcsData::class, // Example: Add when implemented
-            'handler_class' => \App\Services\NullHandler\Actions\NullHandler::class,
+            'handler_class' => \App\Services\AlarmDataFormats\AdemcoContactId\Actions\InterpretAdemcoContactIdData::class,
         ],
         SiaToken::NULL->value => [
             'name' => 'Null (Link Test)',

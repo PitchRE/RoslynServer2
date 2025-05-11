@@ -187,6 +187,10 @@ enum SecurityEventType: string
     case CSR_INFRA_RECEIVER_OFFLINE = 'csr_infra_receiver_offline';
     case CSR_INFRA_SERVICE_DEGRADATION = 'csr_infra_service_degradation';
 
+    case PROCESSING_INTERPRETATION_FAILURE = 'processing_interpretation_failure'; // Failed to interpret the signal payload.
+    case PROCESSING_ENRICHMENT_FAILURE = 'processing_enrichment_failure';     // Failed to enrich with DB relations.
+    case PROCESSING_SAVE_FAILURE = 'processing_save_failure';               // Failed to save the final SecurityEvent.
+
     // --- INFORMATIONAL & GENERIC LOGGING ---
     case INFORMATIONAL_LOG_GENERIC = 'informational_log_generic';       // For generic informational logs not fitting elsewhere (e.g., Log Full, ADT Dealer ID).
     case INFORMATIONAL_LOG_EVENT_LOG_STATUS = 'informational_log_event_log_status'; // For Event Log 50% Full, 90% Full, Overflow.

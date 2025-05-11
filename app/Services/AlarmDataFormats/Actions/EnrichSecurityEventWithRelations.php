@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\AlarmDataFormats\Actions; // Or App\Services\Events\Actions;
+namespace App\Services\AlarmDataFormats\Actions;
 
 use App\Enums\SecurityEventStatus;
 use App\Models\Device;
