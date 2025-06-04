@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (Request $request) {
 
-    // return SiaDc09Message::first()->toArray();
+    //   return SiaDc09Message::first()->toArray();
 
     // $site = Site::create([
     //     'name' => 'Biedronka'
     // ]);
 
     // $device = new Device([
-    //     'identifier' => '3333',
-    //     'model_nane' => 'Satel Perfecta'
+    //     'identifier' => '0499',
+    //     'model_nane' => 'radio'
     // ]);
 
     // $device->site()->associate($site);

@@ -99,8 +99,8 @@ return [
     |
     */
     'timestamp_tolerance' => [
-        'future_seconds' => env('SIA_TIMESTAMP_TOLERANCE_FUTURE', 20),  // Max seconds message can be ahead
-        'past_seconds' => env('SIA_TIMESTAMP_TOLERANCE_PAST', 40),    // Max seconds message can be behind
+        'future_seconds' => env('SIA_TIMESTAMP_TOLERANCE_FUTURE', 60),  // Max seconds message can be ahead
+        'past_seconds' => env('SIA_TIMESTAMP_TOLERANCE_PAST', 60),    // Max seconds message can be behind
     ],
 
     /*
